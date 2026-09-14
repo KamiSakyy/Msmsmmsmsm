@@ -18,9 +18,6 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      ANDROID_HOME: ${{ github.workspace }}/android-sdk
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +32,8 @@ jobs:
         shell: bash
         run: |
           set -e
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          unset ANDROID_HOME_ORIG
           mkdir -p $ANDROID_HOME/cmdline-tools
           cd $ANDROID_HOME/cmdline-tools
           curl -sSL -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
@@ -68,7 +67,7 @@ jobs:
         working-directory: Tsuyu
         shell: bash
         run: |
-          export PATH=$ANDROID_HOME/platform-tools:$PATH
+          export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
           mkdir -p ../ci
           gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee ../ci/build.log
           ls -la app/build/outputs/apk/release/
