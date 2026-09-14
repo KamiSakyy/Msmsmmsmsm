@@ -51,10 +51,15 @@
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 
-# Bouncy Castle
--keep class org.bouncycastle.crypto.** { *; }
--keep class org.bouncycastle.math.ec.** { *; }
--keep class org.bouncycastle.jce.provider.** { *; }
+# Bouncy Castle minimal keep rules for X25519 / Ed25519
+-keep class org.bouncycastle.crypto.agreement.X25519Agreement { *; }
+-keep class org.bouncycastle.crypto.generators.X25519KeyPairGenerator { *; }
+-keep class org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator { *; }
+-keep class org.bouncycastle.crypto.params.** { *; }
+-keep class org.bouncycastle.crypto.signers.Ed25519Signer { *; }
+-keep class org.bouncycastle.crypto.AsymmetricCipherKeyPair { *; }
+-keep class org.bouncycastle.math.ec.rfc7748.** { *; }
+-keep class org.bouncycastle.math.ec.rfc8032.** { *; }
 -dontwarn org.bouncycastle.**
 
 # CameraX

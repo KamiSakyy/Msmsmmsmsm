@@ -36,39 +36,52 @@ public class TsuyuApp extends Application {
     public void createChannels() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationManager nm = getSystemService(NotificationManager.class);
+        if (nm == null) return;
 
-        nm.deleteNotificationChannel(CH_MESSAGES);
-        NotificationChannel msg = new NotificationChannel(
-                CH_MESSAGES, "Сообщения", NotificationManager.IMPORTANCE_HIGH);
-        msg.setDescription("Мгновенные уведомления о новых сообщениях");
-        msg.enableVibration(true);
-        msg.setVibrationPattern(new long[]{0, 60, 50, 60});
-        msg.enableLights(true);
+        NotificationChannel msg = nm.getNotificationChannel(CH_MESSAGES);
+        if (msg == null) {
+            msg = new NotificationChannel(
+                    CH_MESSAGES, "Сообщения", NotificationManager.IMPORTANCE_HIGH);
+            msg.setDescription("Уведомления о входящих сообщениях Tsuyu");
+            msg.enableVibration(true);
+            msg.setVibrationPattern(new long[]{0, 100, 80, 100});
+            msg.enableLights(true);
+            msg.setLightColor(0xFFFFFFFF);
+            msg.setLockscreenVisibility(android.app.Notification.VISIBILITY_PRIVATE);
 
-        Prefs p = new Prefs(this);
-        if (p.notificationsEnabled()) {
-            Uri sound = p.notificationSoundUri();
-            if (sound != null) {
-                msg.setSound(sound, new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                        .build());
+            Prefs p = new Prefs(this);
+            if (p.notificationsEnabled()) {
+                Uri sound = p.notificationSoundUri();
+                if (sound != null) {
+                    msg.setSound(sound, new AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                            .build());
+                }
+            } else {
+                msg.setSound(null, null);
             }
-        } else {
-            msg.setSound(null, null);
+            nm.createNotificationChannel(msg);
         }
-        nm.createNotificationChannel(msg);
 
-        NotificationChannel calls = new NotificationChannel(
-                CH_CALLS, "Звонки", NotificationManager.IMPORTANCE_HIGH);
-        calls.setDescription("Входящие аудио и видео звонки");
-        calls.enableVibration(true);
-        calls.setVibrationPattern(new long[]{0, 700, 600, 700, 600});
-        nm.createNotificationChannel(calls);
+        NotificationChannel calls = nm.getNotificationChannel(CH_CALLS);
+        if (calls == null) {
+            calls = new NotificationChannel(
+                    CH_CALLS, "Звонки", NotificationManager.IMPORTANCE_HIGH);
+            calls.setDescription("Входящие аудио и видео звонки");
+            calls.enableVibration(true);
+            calls.setVibrationPattern(new long[]{0, 700, 600, 700, 600});
+            calls.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
+            nm.createNotificationChannel(calls);
+        }
 
-        NotificationChannel svc = new NotificationChannel(
-                CH_SERVICE, "Фоновая служба", NotificationManager.IMPORTANCE_MIN);
-        svc.setShowBadge(false);
-        nm.createNotificationChannel(svc);
+        NotificationChannel svc = nm.getNotificationChannel(CH_SERVICE);
+        if (svc == null) {
+            svc = new NotificationChannel(
+                    CH_SERVICE, "Фоновая синхронизация", NotificationManager.IMPORTANCE_MIN);
+            svc.setDescription("Поддержание активной защищенной связи");
+            svc.setShowBadge(false);
+            nm.createNotificationChannel(svc);
+        }
     }
 }

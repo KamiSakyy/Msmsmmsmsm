@@ -35,10 +35,14 @@ import com.tsuyu.messenger.ui.ChatActivity;
 import com.tsuyu.messenger.ui.ChatPresence;
 import com.tsuyu.messenger.util.Ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Foreground service keeping an RTDB listener alive so messages and calls
@@ -55,7 +59,15 @@ public class TsuyuService extends Service {
 
     private final Map<String, ChildEventListener> watchers = new HashMap<>();
     private final Set<String> seen = new HashSet<>();
+    private final Map<String, List<NotifMessage>> history = new HashMap<>();
+    private final ExecutorService decodeExecutor = Executors.newSingleThreadExecutor();
     private long startedAt;
+
+    private static class NotifMessage {
+        final String text;
+        final long ts;
+        NotifMessage(String text, long ts) { this.text = text; this.ts = ts; }
+    }
 
     public static void start(Context ctx) {
         Intent i = new Intent(ctx, TsuyuService.class);
@@ -94,6 +106,7 @@ public class TsuyuService extends Service {
                 .setContentTitle("Tsuyu")
                 .setContentText("Сквозное шифрование активно")
                 .setSmallIcon(R.drawable.ic_lock)
+                .setColor(0xFF2C2C2E)
                 .setPriority(NotificationCompat.PRIORITY_MIN)
                 .setOngoing(true)
                 .setShowWhen(false)
@@ -143,7 +156,7 @@ public class TsuyuService extends Service {
         if (peerUid.equals(ChatPresence.activePeer)) return;      // chat already open
         if (!prefs.notificationsEnabled()) return;
 
-        new Thread(() -> {
+        decodeExecutor.execute(() -> {
             Models.Message m = repo.decodeMessage(s, me);
             repo.userRef(peerUid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override public void onDataChange(@NonNull DataSnapshot u) {
@@ -152,12 +165,22 @@ public class TsuyuService extends Service {
                 }
                 @Override public void onCancelled(@NonNull DatabaseError e) { }
             });
-        }).start();
+        });
     }
 
     private void notifyMessage(String peerUid, Models.User peer, Models.Message m) {
         String name = peer == null ? "Новое сообщение" : peer.name;
         String body = previewOf(m);
+
+        synchronized (history) {
+            List<NotifMessage> list = history.get(peerUid);
+            if (list == null) {
+                list = new ArrayList<>();
+                history.put(peerUid, list);
+            }
+            list.add(new NotifMessage(body, m.ts));
+            if (list.size() > 10) list.remove(0);
+        }
 
         Intent open = new Intent(this, ChatActivity.class);
         open.putExtra("peerUid", peerUid);
@@ -165,7 +188,7 @@ public class TsuyuService extends Service {
         PendingIntent openPi = PendingIntent.getActivity(this, peerUid.hashCode(), open,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        // inline reply, like Telegram
+        // inline quick reply
         RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
                 .setLabel("Ответить…").build();
         Intent replyIntent = new Intent(this, ReplyReceiver.class);
@@ -180,20 +203,48 @@ public class TsuyuService extends Service {
                 .setAllowGeneratedReplies(true)
                 .build();
 
+        // mark as read action
+        Intent readIntent = new Intent(this, MarkReadReceiver.class);
+        readIntent.putExtra("peerUid", peerUid);
+        PendingIntent readPi = PendingIntent.getBroadcast(this,
+                peerUid.hashCode() + 2, readIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Action readAction = new NotificationCompat.Action.Builder(
+                R.drawable.ic_check, "Прочитано", readPi)
+                .build();
+
         Bitmap avatar = peer != null && peer.avatar != null
                 ? Ui.circle(Ui.decodeB64(peer.avatar)) : null;
 
         Person person = new Person.Builder()
                 .setName(name)
                 .setIcon(avatar != null ? IconCompat.createWithBitmap(avatar) : null)
+                .setKey(peerUid)
+                .build();
+
+        Person mePerson = new Person.Builder()
+                .setName("Вы")
+                .setKey(me)
                 .build();
 
         NotificationCompat.MessagingStyle style =
-                new NotificationCompat.MessagingStyle(new Person.Builder().setName("Вы").build())
-                        .addMessage(body, m.ts, person);
+                new NotificationCompat.MessagingStyle(mePerson)
+                        .setConversationTitle(name)
+                        .setGroupConversation(false);
+
+        synchronized (history) {
+            List<NotifMessage> list = history.get(peerUid);
+            if (list != null) {
+                for (NotifMessage nmMsg : list) {
+                    style.addMessage(nmMsg.text, nmMsg.ts, person);
+                }
+            }
+        }
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, TsuyuApp.CH_MESSAGES)
                 .setSmallIcon(R.drawable.ic_chat)
+                .setColor(0xFF2C2C2E)
                 .setContentTitle(name)
                 .setContentText(body)
                 .setStyle(style)
@@ -201,19 +252,21 @@ public class TsuyuService extends Service {
                 .setAutoCancel(true)
                 .setContentIntent(openPi)
                 .addAction(replyAction)
+                .addAction(readAction)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setDefaults(0);
 
-        if (prefs.vibrate()) b.setVibrate(new long[]{0, 60, 50, 60});
+        if (prefs.vibrate()) b.setVibrate(new long[]{0, 100, 80, 100});
 
         NotificationManager nm = getSystemService(NotificationManager.class);
-        nm.notify(peerUid.hashCode(), b.build());
+        if (nm != null) nm.notify(peerUid.hashCode(), b.build());
 
         playSound();
     }
 
-    /** Plays the built-in chime or the user's custom 1-second mp3. */
+    /** Plays the built-in chime or the user's custom mp3. */
     private void playSound() {
         if (!prefs.notificationsEnabled()) return;
         try {
@@ -243,7 +296,7 @@ public class TsuyuService extends Service {
             switch (t) {
                 case Models.T_PHOTO: label = "📷 Фото"; break;
                 case Models.T_VIDEO: label = "🎬 Видео"; break;
-                case Models.T_VOICE: label = "🎤 Голосовое сообщение"; break;
+                case Models.T_VOICE: label = "🎤 Голосовое"; break;
                 case Models.T_CIRCLE: label = "⭕ Видеосообщение"; break;
                 case Models.T_AUDIO: label = "🎵 Аудио"; break;
                 default: label = "Вложение";
@@ -257,6 +310,7 @@ public class TsuyuService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        try { decodeExecutor.shutdown(); } catch (Exception ignored) { }
         try { if (wakeLock != null && wakeLock.isHeld()) wakeLock.release(); } catch (Exception ignored) { }
         // restart so notifications keep working
         if (repo != null && repo.uid() != null) start(getApplicationContext());
@@ -268,3 +322,4 @@ public class TsuyuService extends Service {
         start(getApplicationContext());
     }
 }
+

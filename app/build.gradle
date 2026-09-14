@@ -9,8 +9,8 @@ android {
         applicationId "com.tsuyu.messenger"
         minSdk 24
         targetSdk 34
-        versionCode 24
-        versionName "1.0.24"
+        versionCode 25
+        versionName "1.0.25"
         multiDexEnabled true
 
         ndk {
@@ -33,6 +33,9 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            ndk {
+                debugSymbolLevel 'NONE'
+            }
         }
         debug {
             signingConfig signingConfigs.release
@@ -56,14 +59,14 @@ android {
     packagingOptions {
         jniLibs {
             useLegacyPackaging = false
+            keepDebugSymbols.clear()
         }
         resources {
             excludes += [
                 'META-INF/**',
                 'kotlin/**',
                 'DebugProbesKt.bin',
-                'org/bouncycastle/pqc/**',
-                'org/bouncycastle/jce/provider/asymmetric/**',
+                'org/bouncycastle/**',
                 'google/**',
                 '*.proto'
             ]

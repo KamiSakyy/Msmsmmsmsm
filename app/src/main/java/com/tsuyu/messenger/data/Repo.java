@@ -232,16 +232,37 @@ public class Repo {
     public void sendMessage(Models.User peer, JSONObject payload, SendCb cb) {
         String me = uid();
         if (me == null || peer == null) { if (cb != null) cb.onSent(false, null); return; }
+        if (peer.ik == null || peer.spk == null) {
+            userRef(peer.uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        Models.User fresh = parseUser(snapshot);
+                        sendMessage(fresh, payload, cb);
+                    } else {
+                        if (cb != null) cb.onSent(false, null);
+                    }
+                }
+                @Override public void onCancelled(@NonNull DatabaseError error) {
+                    if (cb != null) cb.onSent(false, null);
+                }
+            });
+            return;
+        }
         try {
             payload.put("ts", System.currentTimeMillis());
-            byte[] plain = payload.toString().getBytes("UTF-8");
+            String payloadStr = payload.toString();
+            byte[] plain = payloadStr.getBytes("UTF-8");
 
             SessionManager sm = SessionManager.get(ctx);
             JSONObject forPeer = sm.encrypt(peer.uid, peer.ik, peer.spk, plain);
-            // A copy sealed to ourselves so our own history stays readable on this device.
-            String selfCopy = ProfileCrypto.seal(me, payload.toString());
+            String selfCopy = ProfileCrypto.seal(me, payloadStr);
 
             DatabaseReference ref = chatRef(me, peer.uid).push();
+            String msgId = ref.getKey();
+            if (msgId != null) {
+                LocalMessageStore.get(ctx).putPayload(me, peer.uid, msgId, System.currentTimeMillis(), payloadStr);
+            }
+
             Map<String, Object> m = new HashMap<>();
             m.put("from", me);
             m.put("to", peer.uid);
@@ -251,7 +272,7 @@ public class Repo {
             ref.setValue(m, (e, r) -> {
                 signalInbox(peer.uid, me);
                 indexConversation(me, peer.uid);
-                if (cb != null) cb.onSent(e == null, ref.getKey());
+                if (cb != null) cb.onSent(e == null, msgId);
             });
         } catch (Exception ex) {
             if (cb != null) cb.onSent(false, null);
@@ -294,33 +315,46 @@ public class Repo {
 
         if (msg.deleted) { msg.type = Models.T_TEXT; msg.text = ""; return msg; }
 
+        LocalMessageStore store = LocalMessageStore.get(ctx);
         String json = null;
-        try {
-            if (msg.outgoing) {
-                String self = str(s, "selfEnv");
-                if (self != null) json = ProfileCrypto.open(me, self);
-            }
-            if (json == null) {
-                String env = str(s, "env");
-                if (env != null) {
-                    String peer = msg.outgoing ? msg.to : msg.from;
-                    byte[] plain = SessionManager.get(ctx).decrypt(peer, new JSONObject(env));
-                    json = new String(plain, "UTF-8");
-                }
-            }
-            // Edited messages carry a replacement envelope.
-            String edited = str(s, "editEnv");
-            if (edited != null) {
+
+        if (!msg.edited) {
+            json = store.getPayload(me, msg.id);
+        }
+
+        if (json == null) {
+            try {
                 if (msg.outgoing) {
-                    String o = ProfileCrypto.open(me, edited);
-                    if (o != null) json = o;
-                } else {
-                    byte[] p = SessionManager.get(ctx).decrypt(msg.from, new JSONObject(edited));
-                    json = new String(p, "UTF-8");
+                    String self = str(s, "selfEnv");
+                    if (self != null) json = ProfileCrypto.open(me, self);
                 }
+                if (json == null) {
+                    String env = str(s, "env");
+                    if (env != null) {
+                        String peer = msg.outgoing ? msg.to : msg.from;
+                        byte[] plain = SessionManager.get(ctx).decrypt(peer, new JSONObject(env));
+                        json = new String(plain, "UTF-8");
+                    }
+                }
+                // Edited messages carry a replacement envelope.
+                String edited = str(s, "editEnv");
+                if (edited != null) {
+                    if (msg.outgoing) {
+                        String o = ProfileCrypto.open(me, edited);
+                        if (o != null) json = o;
+                    } else {
+                        byte[] p = SessionManager.get(ctx).decrypt(msg.from, new JSONObject(edited));
+                        json = new String(p, "UTF-8");
+                    }
+                }
+
+                if (json != null) {
+                    String peer = msg.outgoing ? msg.to : msg.from;
+                    store.putPayload(me, peer, msg.id, msg.ts, json);
+                }
+            } catch (Exception e) {
+                msg.failed = true;
             }
-        } catch (Exception e) {
-            msg.failed = true;
         }
 
         if (json == null) {
@@ -330,6 +364,7 @@ public class Repo {
         }
         try {
             applyPayload(msg, new JSONObject(json));
+            msg.failed = false;
         } catch (Exception e) {
             msg.failed = true;
         }
@@ -372,21 +407,24 @@ public class Repo {
         String me = uid();
         if (me == null) return;
         try {
+            String payloadStr = newPayload.toString();
             JSONObject env = SessionManager.get(ctx)
-                    .encrypt(peer.uid, peer.ik, peer.spk, newPayload.toString().getBytes("UTF-8"));
+                    .encrypt(peer.uid, peer.ik, peer.spk, payloadStr.getBytes("UTF-8"));
             Map<String, Object> m = new HashMap<>();
             m.put("editEnv", env.toString());
             m.put("edited", true);
             chatRef(me, peer.uid).child(msgId).updateChildren(m);
             // our own readable copy
             chatRef(me, peer.uid).child(msgId).child("selfEnv")
-                    .setValue(ProfileCrypto.seal(me, newPayload.toString()));
+                    .setValue(ProfileCrypto.seal(me, payloadStr));
+            LocalMessageStore.get(ctx).putPayload(me, peer.uid, msgId, System.currentTimeMillis(), payloadStr);
         } catch (Exception ignored) { }
     }
 
     public void deleteMessage(String peerUid, String msgId, boolean forBoth) {
         String me = uid();
         if (me == null) return;
+        LocalMessageStore.get(ctx).deleteMessage(me, msgId);
         DatabaseReference ref = chatRef(me, peerUid).child(msgId);
         if (forBoth) {
             ref.removeValue();

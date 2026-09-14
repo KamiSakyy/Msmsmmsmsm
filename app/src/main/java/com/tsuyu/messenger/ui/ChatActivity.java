@@ -57,6 +57,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatActivity extends AppCompatActivity implements MessageAdapter.Callbacks {
 
@@ -64,6 +66,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
     private Prefs prefs;
     private String me, peerUid;
     private Models.User peer;
+    private final ExecutorService decodeExecutor = Executors.newSingleThreadExecutor();
 
     private RecyclerView list;
     private MessageAdapter adapter;
@@ -370,14 +373,14 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
             render(false);
             return;
         }
-        new Thread(() -> {
+        decodeExecutor.execute(() -> {
             Models.Message m = repo.decodeMessage(s, me);
             runOnUiThread(() -> {
                 messages.put(m.id, m);
                 render(isNew);
                 if (!m.outgoing && !m.read) repo.markRead(peerUid, m.id);
             });
-        }).start();
+        });
     }
 
     private void render(boolean scroll) {
@@ -398,7 +401,18 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
     // ------------------------------------------------------------------
 
     private void send() {
-        if (peer == null) { toast("Профиль собеседника ещё загружается"); return; }
+        if (peer == null) {
+            repo.userRef(peerUid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override public void onDataChange(@NonNull DataSnapshot s) {
+                    if (s.exists()) {
+                        peer = Repo.parseUser(s);
+                        send();
+                    }
+                }
+                @Override public void onCancelled(@NonNull DatabaseError e) { }
+            });
+            return;
+        }
         String text = input.getText().toString().trim();
 
         if (editingId != null) {
@@ -1034,6 +1048,12 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
         ChatPresence.activePeer = null;
         repo.setTyping(peerUid, false);
         AudioPlayer.get().stop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try { decodeExecutor.shutdown(); } catch (Exception ignored) { }
     }
 
     @Override

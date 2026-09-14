@@ -47,12 +47,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
     private Repo repo;
     private Prefs prefs;
     private String me;
+    private final ExecutorService decodeExecutor = Executors.newSingleThreadExecutor();
 
     private DrawerLayout drawerLayout;
     private RecyclerView list;
@@ -522,23 +525,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onMsg(String peerUid, DataSnapshot s) {
-        new Thread(() -> {
+        decodeExecutor.execute(() -> {
             Models.Message m = repo.decodeMessage(s, me);
             runOnUiThread(() -> {
                 Models.Dialog d = ensureDialog(peerUid);
                 if (d.last == null || m.ts >= d.last.ts) d.last = m;
                 publish();
             });
-        }).start();
+        });
     }
 
     private void reloadLast(String peerUid) {
         repo.chatQuery(me, peerUid, 1).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Models.Dialog d = ensureDialog(peerUid);
-                d.last = null;
-                for (DataSnapshot c : snapshot.getChildren()) d.last = repo.decodeMessage(c, me);
-                publish();
+                decodeExecutor.execute(() -> {
+                    Models.Dialog d = ensureDialog(peerUid);
+                    d.last = null;
+                    for (DataSnapshot c : snapshot.getChildren()) d.last = repo.decodeMessage(c, me);
+                    runOnUiThread(() -> publish());
+                });
             }
             @Override public void onCancelled(@NonNull DatabaseError error) { }
         });
@@ -663,5 +668,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         if (!prefs.ghost()) repo.goOffline();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try { decodeExecutor.shutdown(); } catch (Exception ignored) { }
     }
 }
