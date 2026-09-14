@@ -55,6 +55,8 @@ jobs:
         shell: bash
         run: |
           set +e
+          mkdir -p ci
+          exec > >(tee ci/verify.log) 2>&1
           cd Tsuyu
           gradle :app:dependencies --configuration releaseCompileClasspath > /dev/null 2>&1
           echo "=== platform android-34 ==="
@@ -103,6 +105,7 @@ jobs:
             echo "no build log captured" > ci/build-fail.log
           fi
           echo "=== RUN ${GITHUB_RUN_ID} on ${GITHUB_REF_NAME} ===" > /tmp/faillog.txt
+          if [ -f ci/verify.log ]; then echo "--- VERIFY ---" >> /tmp/faillog.txt; cat ci/verify.log >> /tmp/faillog.txt; fi
           cat ci/build-fail.log >> /tmp/faillog.txt
           git config user.name "tsuyu-ci"
           git config user.email "ci@tsuyu.app"
