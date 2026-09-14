@@ -12,7 +12,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.app.RemoteInput;
+
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -124,7 +124,7 @@ public class Notifier {
                     .addAction(new NotificationCompat.Action.Builder(
                             R.drawable.ic_reply,
                             "Ответить", piReply)
-                            .addRemoteInput(new RemoteInput.Builder("reply_text")
+                            .addRemoteInput(new androidx.core.app.RemoteInput.Builder("reply_text")
                                     .setLabel("Ответить")
                                     .build())
                             .build());

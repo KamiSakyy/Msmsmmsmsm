@@ -168,7 +168,7 @@ public class ChatActivity extends AppCompatActivity implements BgService.ChatLis
             title.setText(peerUser == null ? "..." : peerUser.displayName());
             ImageView iv = findViewById(R.id.ivHeaderAvatar);
             TextView letter = findViewById(R.id.tvHeaderLetter);
-            View bg = ((ViewGroup) findViewById(R.id.headerAvatarWrap)).getChildAt(0);
+            View bg = findViewById(R.id.headerAvatarWrap).getChildAt(0);
             Ui.setAvatar(iv, bg, letter, peerUser);
         } catch (Throwable ignored) {}
     }
@@ -337,7 +337,7 @@ public class ChatActivity extends AppCompatActivity implements BgService.ChatLis
             msgListener = new ChildEventListener() {
                 @Override public void onChildAdded(DataSnapshot ds, String prev) { onMsgEvent(ds); }
                 @Override public void onChildChanged(DataSnapshot ds, String prev) { onMsgEvent(ds); }
-                @Override public void onChildRemoved(DataSnapshot ds) {
+                @Override public void onChildRemoved(DataSnapshot ds, String prev) {
                     try {
                         msgMap.remove(ds.getKey());
                         for (int i = rows.size() - 1; i >= 0; i--) {
@@ -606,7 +606,7 @@ public class ChatActivity extends AppCompatActivity implements BgService.ChatLis
     private void showAttachMenu() {
         try {
             android.widget.PopupWindow pw = new android.widget.PopupWindow(this);
-            LinearLayout v = new LinearLayout(this);
+            View v = new LinearLayout(this);
             v.setOrientation(LinearLayout.VERTICAL);
             v.setBackgroundResource(R.drawable.bg_menu);
             int pad = dp(6);
@@ -625,7 +625,7 @@ public class ChatActivity extends AppCompatActivity implements BgService.ChatLis
     }
 
     void addMenuItem(LinearLayout parent, int iconRes, String text, Runnable action) {
-        LinearLayout row = new LinearLayout(this);
+        View row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(android.view.Gravity.CENTER_VERTICAL);
         row.setPadding(dp(12), dp(10), dp(12), dp(10));
@@ -921,7 +921,7 @@ public class ChatActivity extends AppCompatActivity implements BgService.ChatLis
     private Uri copyToCache(Uri uri, String prefix) throws Exception {
         File f = new File(getCacheDir(), prefix + "_" + System.currentTimeMillis());
         java.io.InputStream is = getContentResolver().openInputStream(uri);
-        java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+        java.io.FileOutputStream fos = new FileOutputStream(f);
         byte[] buf = new byte[65536];
         int n;
         while ((n = is.read(buf)) > 0) fos.write(buf, 0, n);
@@ -974,7 +974,7 @@ public class ChatActivity extends AppCompatActivity implements BgService.ChatLis
     private void showChatMenu() {
         try {
             android.widget.PopupWindow pw = new android.widget.PopupWindow(this);
-            LinearLayout v = new LinearLayout(this);
+            View v = new LinearLayout(this);
             v.setOrientation(LinearLayout.VERTICAL);
             v.setBackgroundResource(R.drawable.bg_menu);
             v.setPadding(dp(6), dp(6), dp(6), dp(6));
@@ -997,7 +997,7 @@ public class ChatActivity extends AppCompatActivity implements BgService.ChatLis
     void onMsgMore(Msg m, View anchor) {
         try {
             android.widget.PopupWindow pw = new android.widget.PopupWindow(this);
-            LinearLayout v = new LinearLayout(this);
+            View v = new LinearLayout(this);
             v.setOrientation(LinearLayout.VERTICAL);
             v.setBackgroundResource(R.drawable.bg_menu);
             v.setPadding(dp(6), dp(6), dp(6), dp(6));

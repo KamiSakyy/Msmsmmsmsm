@@ -431,11 +431,11 @@ public class Ratchet {
             byte[][] candidates = rkArchiveList(s);
             // candidate 0 = current rk priv (always first)
             byte[] first = b64d(myLastRkPriv);
-            byte[][] all = new byte[candidates.length + 1][2];
-            all[0] = new byte[]{first, null};
+            byte[][][] all = new byte[candidates.length + 1][][];
+            all[0] = new byte[][]{first, null};
             System.arraycopy(candidates, 0, all, 1, candidates.length);
 
-            for (byte[] cand : all) {
+            for (byte[][] cand : all) {
                 byte[] candPriv = cand[0];
                 if (candPriv == null) continue;
                 try {

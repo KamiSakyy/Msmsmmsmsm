@@ -346,9 +346,9 @@ public class CallEngine {
             if (CallService.callId == null || c == null) return;
             JSONObject d = new JSONObject();
             String key = CallService.outgoing ? "iceF" : "iceT";
-            d.put(key, c.sdpMid() + "|" + c.sdpLine() + "|" + c.candidate());
+            d.put(key, c.sdpMid() + "|" + c.sdpMLineIndex() + "|" + c.sdp());
             Fb.fb().getReference("calls/" + CallService.callId).updateChildren(Fb.toMap(d));
-            Log.i(TAG, "ice published " + key + " mid=" + c.sdpMid() + " line=" + c.sdpLine());
+            Log.i(TAG, "ice published " + key + " mid=" + c.sdpMid() + " line=" + c.sdpMLineIndex());
         } catch (Throwable t) {
             Log.e(TAG, "onLocalIce", t);
         }

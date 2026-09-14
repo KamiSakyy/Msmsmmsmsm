@@ -56,3 +56,9 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.78.1'
     implementation 'org.jitsi:webrtc:124.0.0'
 }
+
+task printCompileCp {
+    doLast {
+        configurations.releaseCompileClasspath.files.each { f -> println f }
+    }
+}

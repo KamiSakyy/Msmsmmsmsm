@@ -15,7 +15,6 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
-import android.view.SurfaceTextureListener;
 import android.view.TextureView;
 import android.widget.TextView;
 

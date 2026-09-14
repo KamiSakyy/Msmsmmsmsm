@@ -64,6 +64,37 @@ jobs:
           ln -sf /opt/gradle-8.7/bin/gradle /usr/local/bin/gradle
           gradle --version
 
+      - name: Classpath diagnostics
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          echo "=== SDK platforms ==="
+          ls "$ANDROID_SDK_ROOT/platforms" 2>/dev/null || echo "no platforms dir"
+          JAR="$ANDROID_SDK_ROOT/platforms/android-34/android.jar"
+          if [ -f "$JAR" ]; then
+            echo "android-34/android.jar size: $(stat -c%s "$JAR")"
+            echo "  camera2: $(unzip -l "$JAR" | grep -c 'hardware/camera2/CameraCaptureRequest.class')"
+            echo "  RemoteInput: $(unzip -l "$JAR" | grep -c 'app/RemoteInput.class')"
+            echo "  Notification: $(unzip -l "$JAR" | grep -c 'app/Notification.class')"
+          else
+            echo "!!! android-34/android.jar MISSING !!!"
+          fi
+          echo "=== compile classpath shadow check ==="
+          cd Tsuyu
+          ./gradlew --version > /dev/null 2>&1 || gradle --version > /dev/null 2>&1
+          gradle -q :app:printCompileCp 2>/dev/null > /tmp/cp.txt
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            if unzip -l "$f" 2>/dev/null | grep -qE "android/app/Notification.class"; then
+              echo "SHADOWS android.app.Notification: $f"
+            fi
+            if unzip -l "$f" 2>/dev/null | grep -qE "org/webrtc/MediaStream.class"; then
+              echo "PROVIDES org.webrtc.MediaStream: $f"
+            fi
+          done < /tmp/cp.txt
+          echo "=== done ==="
+
       - name: Build release APK
         working-directory: Tsuyu
         shell: bash

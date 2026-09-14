@@ -24,10 +24,10 @@ public class ReplyHandlerActivity extends Activity {
         String text = null;
         Intent intent = getIntent();
         try {
-            android.os.Bundle resB = android.app.RemoteInput.getResultsFromIntent(intent);
+            android.os.Bundle resB = androidx.core.app.RemoteInput.getResultsFromIntent(intent);
             if (resB != null) {
                 for (String k : resB.keySet()) {
-                    android.app.RemoteInput r = resB.getParcelable(k);
+                    androidx.core.app.RemoteInput r = resB.getParcelable(k);
                     if (r == null) continue;
                     CharSequence res = r.getResultsText(intent);
                     if (res != null) text = res.toString().trim();
