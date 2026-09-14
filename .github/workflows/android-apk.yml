@@ -69,6 +69,8 @@ jobs:
         shell: bash
         run: |
           set +e
+          mkdir -p ci
+          {
           echo "=== SDK platforms ==="
           ls "$ANDROID_SDK_ROOT/platforms" 2>/dev/null || echo "no platforms dir"
           JAR="$ANDROID_SDK_ROOT/platforms/android-34/android.jar"
@@ -93,7 +95,10 @@ jobs:
               echo "PROVIDES org.webrtc.MediaStream: $f"
             fi
           done < /tmp/cp.txt
+          echo "=== dependency tree (webrtc-related) ==="
+          gradle :app:dependencies --configuration releaseCompileClasspath 2>/dev/null | grep -iE "webrtc|dafruits|android-" | sort -u | head -30
           echo "=== done ==="
+          } 2>&1 | tee ci/diag.log
 
       - name: Build release APK
         working-directory: Tsuyu
@@ -117,6 +122,8 @@ jobs:
             echo "no build log captured" > ci/build-fail.log
           fi
           echo "=== RUN ${GITHUB_RUN_ID} on ${GITHUB_REF_NAME} ===" > /tmp/faillog.txt
+          if [ -f ci/diag.log ]; then echo "--- DIAGNOSTICS ---" >> /tmp/faillog.txt; cat ci/diag.log >> /tmp/faillog.txt; fi
+          echo "--- BUILD LOG ---" >> /tmp/faillog.txt
           cat ci/build-fail.log >> /tmp/faillog.txt
           # channel 1: push to dedicated ci-logs branch (no workflow trigger on that branch)
           git config user.name "tsuyu-ci"

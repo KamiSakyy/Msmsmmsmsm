@@ -135,7 +135,7 @@ public class Notifier {
                 b.setDefaults(0);
             } else {
                 b.setSound(null);
-                b.setStyle(b.getBigTextStyle());
+                b.setStyle(new NotificationCompat.BigTextStyle().bigText(preview));
             }
 
             if (peer != null && peer.avatarB64 != null) {
