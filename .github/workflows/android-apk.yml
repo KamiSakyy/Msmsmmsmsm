@@ -50,7 +50,7 @@ jobs:
           fi
           SM=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
           yes | $SM --licenses > /dev/null 2>&1 || true
-          good_jar() { [ -f "$1" ] && unzip -l "$1" 2>/dev/null | grep -q "hardware/camera2/CameraCaptureRequest.class"; }
+          good_jar() { [ -f "$1" ] && [ "$(unzip -l "$1" 2>/dev/null | grep -c "hardware/camera2/CameraCaptureRequest.class")" -gt 0 ]; }
           PICK=""; PICKSDK=""; SRC=""
           for d in "$ANDROID_HOME"/platforms/android-*; do
             [ -d "$d" ] || continue
