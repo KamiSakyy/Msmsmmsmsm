@@ -10,6 +10,7 @@
     <color name="divider">#1C1C1C</color>
     <color name="divider_soft">#111111</color>
     <color name="stroke">#2A2A2C</color>
+    <color name="card_border">#2A2A2C</color>
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#8E8E93</color>
     <color name="text_tertiary">#666666</color>
