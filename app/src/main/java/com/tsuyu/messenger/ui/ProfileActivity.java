@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +36,10 @@ public class ProfileActivity extends AppCompatActivity {
     private boolean self;
     private Models.User user;
 
-    private ImageView avatar;
+    private ImageView avatar, avatarBadge;
     private TextView name, username, status, bio;
     private EditText inName, inBio;
+    private LinearLayout peerActions;
     private ActivityResultLauncher<PickVisualMediaRequest> picker;
 
     @Override
@@ -56,12 +58,14 @@ public class ProfileActivity extends AppCompatActivity {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         avatar = findViewById(R.id.avatar);
+        avatarBadge = findViewById(R.id.avatarBadge);
         name = findViewById(R.id.name);
         username = findViewById(R.id.username);
         status = findViewById(R.id.status);
         bio = findViewById(R.id.bio);
         inName = findViewById(R.id.inName);
         inBio = findViewById(R.id.inBio);
+        peerActions = findViewById(R.id.peerActions);
 
         picker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), u -> {
             if (u != null) changeAvatar(u);
@@ -69,24 +73,42 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (self) {
             findViewById(R.id.editSection).setVisibility(View.VISIBLE);
-            findViewById(R.id.btnChangeAvatar).setOnClickListener(v ->
-                    picker.launch(new PickVisualMediaRequest.Builder()
-                            .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                            .build()));
+            avatarBadge.setVisibility(View.VISIBLE);
+            avatarBadge.setOnClickListener(v -> launchPicker());
+            findViewById(R.id.btnChangeAvatar).setOnClickListener(v -> launchPicker());
             ((Button) findViewById(R.id.btnSave)).setOnClickListener(v -> save());
         } else {
-            Button msg = findViewById(R.id.btnMessage);
-            msg.setVisibility(View.VISIBLE);
-            msg.setOnClickListener(v -> {
+            peerActions.setVisibility(View.VISIBLE);
+            findViewById(R.id.actionChat).setOnClickListener(v -> {
                 Intent i = new Intent(this, ChatActivity.class);
                 i.putExtra("peerUid", uid);
                 startActivity(i);
                 finish();
             });
+            findViewById(R.id.actionCall).setOnClickListener(v -> {
+                Intent i = new Intent(this, CallActivity.class);
+                i.putExtra("peerUid", uid);
+                i.putExtra("video", false);
+                i.putExtra("outgoing", true);
+                startActivity(i);
+            });
+            findViewById(R.id.actionVideo).setOnClickListener(v -> {
+                Intent i = new Intent(this, CallActivity.class);
+                i.putExtra("peerUid", uid);
+                i.putExtra("video", true);
+                i.putExtra("outgoing", true);
+                startActivity(i);
+            });
         }
 
         load();
         watchPresence();
+    }
+
+    private void launchPicker() {
+        picker.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build());
     }
 
     private void load() {
@@ -104,13 +126,12 @@ public class ProfileActivity extends AppCompatActivity {
         name.setText(user.name);
         username.setText(user.username == null ? "" : "@" + user.username);
 
-        // privacy: fall back to the public photo / hide bio when restricted
         boolean avatarVisible = self || allowed(user.pAvatar);
         String shown = avatarVisible ? user.avatar : user.publicAvatar;
         Ui.setAvatar(avatar, shown, user.uid, user.name);
 
         boolean bioVisible = self || allowed(user.pBio);
-        bio.setText(bioVisible && user.bio != null ? user.bio : "");
+        bio.setText(bioVisible && user.bio != null && !user.bio.isEmpty() ? user.bio : "Нет описания");
 
         if (self) {
             if (inName.getText().length() == 0) inName.setText(user.name);
@@ -118,7 +139,6 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    /** Simplified check: "contacts"/"username" both mean "people who can reach me". */
     private boolean allowed(String policy) {
         if (policy == null || "all".equals(policy)) return true;
         if ("none".equals(policy)) return false;

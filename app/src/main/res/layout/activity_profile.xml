@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -15,16 +16,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="14dp"
+            android:padding="16dp"
             android:gravity="center_horizontal">
 
-            <ImageView
-                android:id="@+id/avatar"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_avatar"
-                android:scaleType="centerCrop" />
+            <!-- Hero Avatar with Accent Glow -->
+            <FrameLayout
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:id="@+id/avatar"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/bg_avatar"
+                    android:scaleType="centerCrop" />
+
+                <ImageView
+                    android:id="@+id/avatarBadge"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/bg_send_btn"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_camera"
+                    android:visibility="gone"
+                    app:tint="@color/black" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/name"
@@ -32,14 +50,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:textColor="@color/text_primary"
-                android:textSize="21sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:textColor="@color/accent"
                 android:textSize="14sp" />
 
@@ -48,45 +66,183 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:textColor="@color/green"
+                android:textSize="13sp" />
 
-            <TextView
-                android:id="@+id/bio"
+            <!-- Peer Action Buttons Row (Chat, Audio Call, Video Call) -->
+            <LinearLayout
+                android:id="@+id/peerActions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
                 android:gravity="center"
-                android:textColor="@color/text_dim"
-                android:textSize="14sp" />
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
 
-            <!-- own profile editor -->
+                <LinearLayout
+                    android:id="@+id/actionChat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:background="@drawable/bg_card"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chat"
+                        app:tint="@color/accent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Чат"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/actionCall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:background="@drawable/bg_card"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_phone"
+                        app:tint="@color/green" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Звонок"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/actionVideo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:background="@drawable/bg_card"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_video"
+                        app:tint="@color/accent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Видео"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Bio Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_card"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="О себе"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:id="@+id/bio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Нет описания"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="3dp" />
+            </LinearLayout>
+
+            <!-- Own Profile Editor Section -->
             <LinearLayout
                 android:id="@+id/editSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:visibility="gone">
 
-                <EditText android:id="@+id/inName" style="@style/TsuyuInput"
-                    android:hint="Имя" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Редактирование профиля"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.05" />
 
-                <EditText android:id="@+id/inBio" style="@style/TsuyuInput"
-                    android:hint="Описание" />
+                <EditText
+                    android:id="@+id/inName"
+                    style="@style/TsuyuInput"
+                    android:hint="Ваше имя" />
 
-                <Button android:id="@+id/btnChangeAvatar" style="@style/TsuyuButtonSecondary"
-                    android:text="Сменить аватарку" />
+                <EditText
+                    android:id="@+id/inBio"
+                    style="@style/TsuyuInput"
+                    android:hint="Описание (статус)" />
 
-                <Button android:id="@+id/btnSave" style="@style/TsuyuButton"
-                    android:text="Сохранить" />
+                <Button
+                    android:id="@+id/btnChangeAvatar"
+                    style="@style/TsuyuButtonSecondary"
+                    android:text="Сменить фото профиля" />
+
+                <Button
+                    android:id="@+id/btnSave"
+                    style="@style/TsuyuButton"
+                    android:text="Сохранить изменения" />
             </LinearLayout>
 
+            <!-- Single Message button fallback -->
             <Button
                 android:id="@+id/btnMessage"
                 style="@style/TsuyuButton"
-                android:layout_marginTop="20dp"
-                android:text="Написать"
+                android:layout_marginTop="16dp"
+                android:text="Открыть чат"
                 android:visibility="gone" />
         </LinearLayout>
     </ScrollView>

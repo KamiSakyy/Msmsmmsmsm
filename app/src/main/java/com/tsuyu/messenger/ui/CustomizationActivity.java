@@ -26,7 +26,7 @@ import java.io.InputStream;
 public class CustomizationActivity extends AppCompatActivity {
 
     private Prefs prefs;
-    private TextView preview, fontValue, sizeLabel;
+    private TextView previewInText, previewOutText, fontValue, sizeLabel;
     private SeekBar sizeSeek;
     private Switch swBold, swItalic;
     private EditText inTyping, inOnline, inLastSeen, inMessage;
@@ -41,7 +41,8 @@ public class CustomizationActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.headerTitle)).setText("Кастомизация");
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        preview = findViewById(R.id.preview);
+        previewInText = findViewById(R.id.previewInText);
+        previewOutText = findViewById(R.id.previewOutText);
         fontValue = findViewById(R.id.fontValue);
         sizeLabel = findViewById(R.id.sizeLabel);
         sizeSeek = findViewById(R.id.sizeSeek);
@@ -102,7 +103,8 @@ public class CustomizationActivity extends AppCompatActivity {
 
     private void refreshPreview() {
         sizeLabel.setText("Размер текста: " + prefs.textSize() + " sp");
-        Ui.applyTextStyle(preview, prefs);
+        if (previewInText != null) Ui.applyTextStyle(previewInText, prefs);
+        if (previewOutText != null) Ui.applyTextStyle(previewOutText, prefs);
     }
 
     private void importFont(Uri uri) {
@@ -115,7 +117,6 @@ public class CustomizationActivity extends AppCompatActivity {
                     int n;
                     while ((n = in.read(buf)) > 0) fos.write(buf, 0, n);
                 }
-                // validate
                 android.graphics.Typeface.createFromFile(out);
                 prefs.setFontPath(out.getAbsolutePath());
                 runOnUiThread(() -> { renderFont(); refreshPreview(); });
@@ -131,7 +132,7 @@ public class CustomizationActivity extends AppCompatActivity {
         prefs.setWordOnline(text(inOnline, "в сети"));
         prefs.setWordLastSeen(text(inLastSeen, "была в сети"));
         prefs.setWordMessage(text(inMessage, "Сообщение"));
-        Toast.makeText(this, "Сохранено", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Настройки сохранены", Toast.LENGTH_SHORT).show();
         finish();
     }
 
