@@ -441,6 +441,11 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
                 });
     }
 
+    private void openCircle() {
+        if (!ensurePermissions()) return;
+        circleRecorder.launch(new Intent(this, CircleRecordActivity.class));
+    }
+
     private void showAttachSheet() {
         String[] options = {
                 "📷  Фото и Галерея",
