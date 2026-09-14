@@ -36,6 +36,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.tsuyu.messenger.R;
+import com.tsuyu.messenger.crypto.CryptoUtil;
+import com.tsuyu.messenger.crypto.IdentityStore;
 import com.tsuyu.messenger.data.Models;
 import com.tsuyu.messenger.data.Prefs;
 import com.tsuyu.messenger.data.Repo;
@@ -66,12 +68,13 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
     private RecyclerView list;
     private MessageAdapter adapter;
     private EditText input;
-    private ImageView btnSend, btnCircle, headerAvatar, scrollFab;
-    private TextView headerName, headerStatus, typingText;
-    private LinearLayout typingBar, replyBar, recordingBar, inputRow;
+    private ImageView btnSend, btnCircle, headerAvatar, scrollFab, headerVerified, pinClose;
+    private TextView headerName, headerStatus, typingText, pinText;
+    private LinearLayout typingBar, replyBar, recordingBar, inputRow, pinBar;
     private TextView replyTitle, replyText, recTimer, recCancel;
     private WaveformView recWave;
     private RecyclerView attachStrip;
+    private String pinnedMessageId;
 
     private final Map<String, Models.Message> messages = new LinkedHashMap<>();
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -127,6 +130,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
         headerAvatar = findViewById(R.id.headerAvatar);
         headerName = findViewById(R.id.headerName);
         headerStatus = findViewById(R.id.headerStatus);
+        headerVerified = findViewById(R.id.headerVerified);
         typingBar = findViewById(R.id.typingBar);
         typingText = findViewById(R.id.typingText);
         replyBar = findViewById(R.id.replyBar);
@@ -139,6 +143,16 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
         inputRow = findViewById(R.id.inputRow);
         attachStrip = findViewById(R.id.attachStrip);
         scrollFab = findViewById(R.id.scrollFab);
+
+        pinBar = findViewById(R.id.pinBar);
+        pinText = findViewById(R.id.pinText);
+        pinClose = findViewById(R.id.pinClose);
+
+        updateVerifiedBadge();
+
+        if (pinBar != null) pinBar.setOnClickListener(v -> scrollToPinned());
+        if (pinClose != null) pinClose.setOnClickListener(v -> unpinMessage());
+        if (headerVerified != null) headerVerified.setOnClickListener(v -> showSafetyNumberDialog());
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.replyClose).setOnClickListener(v -> clearReply());
@@ -272,6 +286,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
                 headerName.setText(peer.name);
                 Ui.setAvatar(headerAvatar, peer.avatar, peer.uid, peer.name);
                 adapter.setPeerInfo(peerUid, peer.name, peer.avatar);
+                updateVerifiedBadge();
             }
             @Override public void onCancelled(@NonNull DatabaseError e) { }
         });
@@ -749,7 +764,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
         View pinBtn = v.findViewById(R.id.menuPin);
         if (pinBtn != null) {
             pinBtn.setOnClickListener(x -> {
-                Toast.makeText(this, "Сообщение закреплено", Toast.LENGTH_SHORT).show();
+                pinMessage(m);
                 pw.dismiss();
             });
         }
@@ -768,6 +783,111 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
         v.setScaleY(0.94f);
         pw.showAsDropDown(anchor, 0, 0, Gravity.START);
         v.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(150).start();
+    }
+
+    private void updateVerifiedBadge() {
+        if (headerVerified == null) return;
+        boolean v = IdentityStore.get(this).isVerified(peerUid);
+        headerVerified.setVisibility(v ? View.VISIBLE : View.GONE);
+    }
+
+    private void pinMessage(Models.Message m) {
+        pinnedMessageId = m.id;
+        if (pinBar != null && pinText != null) {
+            pinBar.setVisibility(View.VISIBLE);
+            pinText.setText(previewOf(m));
+            Ui.fadeIn(pinBar);
+            Toast.makeText(this, "Сообщение закреплено", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void scrollToPinned() {
+        if (pinnedMessageId == null) return;
+        List<Models.Message> all = adapter.items();
+        for (int i = 0; i < all.size(); i++) {
+            if (pinnedMessageId.equals(all.get(i).id)) {
+                list.smoothScrollToPosition(i);
+                return;
+            }
+        }
+    }
+
+    private void unpinMessage() {
+        pinnedMessageId = null;
+        if (pinBar != null) {
+            pinBar.setVisibility(View.GONE);
+            Toast.makeText(this, "Закрепление удалено", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showSafetyNumberDialog() {
+        IdentityStore id = IdentityStore.get(this);
+        byte[] myIk = id.idPub;
+        byte[] peerIk = null;
+        if (peer != null && peer.ik != null) {
+            peerIk = CryptoUtil.unb64(peer.ik);
+        } else {
+            String savedIk = id.getSavedPeerIk(peerUid);
+            if (savedIk != null) peerIk = CryptoUtil.unb64(savedIk);
+        }
+
+        if (peerIk == null) {
+            Toast.makeText(this, "Ключ безопасности собеседника синхронизируется...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String safetyNumber = CryptoUtil.computeSafetyNumber(myIk, peerIk);
+        boolean isVerified = id.isVerified(peerUid);
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(48, 24, 48, 24);
+
+        TextView desc = new TextView(this);
+        desc.setText("Сравните этот 60-значный код безопасности с кодом на устройстве собеседника для подтверждения сквозного шифрования (Signal Double Ratchet).");
+        desc.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+        desc.setTextSize(12);
+        desc.setLineSpacing(4, 1);
+        layout.addView(desc);
+
+        TextView snView = new TextView(this);
+        snView.setText(safetyNumber);
+        snView.setTextColor(0xFFFFFFFF);
+        snView.setTextSize(14);
+        snView.setTypeface(android.graphics.Typeface.MONOSPACE, android.graphics.Typeface.BOLD);
+        snView.setGravity(android.view.Gravity.CENTER);
+        snView.setPadding(24, 32, 24, 32);
+        snView.setBackgroundResource(R.drawable.bg_card);
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, 24, 0, 24);
+        snView.setLayoutParams(lp);
+        snView.setOnClickListener(v -> {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (cm != null) {
+                cm.setPrimaryClip(android.content.ClipData.newPlainText("Safety Number", safetyNumber));
+                Toast.makeText(this, "Код безопасности скопирован", Toast.LENGTH_SHORT).show();
+            }
+        });
+        layout.addView(snView);
+
+        new AlertDialog.Builder(this, R.style.Theme_Tsuyu_Dialog)
+                .setTitle("Код безопасности Signal")
+                .setView(layout)
+                .setPositiveButton(isVerified ? "Снять подтверждение" : "Отметить как проверенный ✓", (d, w) -> {
+                    id.setVerified(peerUid, !isVerified);
+                    updateVerifiedBadge();
+                    Toast.makeText(this, !isVerified ? "Контакт подтверждён ✓" : "Подтверждение снято", Toast.LENGTH_SHORT).show();
+                })
+                .setNeutralButton("Скопировать", (d, w) -> {
+                    android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    if (cm != null) {
+                        cm.setPrimaryClip(android.content.ClipData.newPlainText("Safety Number", safetyNumber));
+                        Toast.makeText(this, "Код безопасности скопирован", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Закрыть", null)
+                .show();
     }
 
     private void toggleHeart(Models.Message m) {
@@ -857,11 +977,17 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
     // ------------------------------------------------------------------
 
     private void showChatMenu(View anchor) {
-        String[] opts = {"Профиль", "Скачать переписку", "Очистить историю"};
+        String[] opts = {
+                "Профиль собеседника",
+                "Код безопасности Signal",
+                "Экспорт переписки",
+                "Очистить историю"
+        };
         new AlertDialog.Builder(this, R.style.Theme_Tsuyu_Dialog)
                 .setItems(opts, (d, which) -> {
                     if (which == 0) openPeerProfile();
-                    else if (which == 1) ExportDialog.show(this, peer, adapter.items());
+                    else if (which == 1) showSafetyNumberDialog();
+                    else if (which == 2) ExportDialog.show(this, peer, adapter.items());
                     else clearHistory();
                 })
                 .show();
