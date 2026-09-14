@@ -1,14 +1,18 @@
-name: Build Tsuyu Messenger Android APK
+name: Build Tsuyu APK
 
 on:
   push:
     branches: [ "**" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
-    name: Build Android APK
+    name: Build Tsuyu Android APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout Repository
@@ -17,9 +21,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
+          java-version: '17'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -27,44 +30,61 @@ jobs:
           api-level: 34
           build-tools: 34.0.0
 
-      - name: Grant Execute Permission for Gradle
-        run: chmod +x gradlew
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
 
-      - name: Build Android Release APK
-        run: ./gradlew assembleRelease --stacktrace
-
-      - name: Copy & Rename APK
+      - name: Build Android Release & Debug APK
         run: |
-          mkdir -p build_output
-          if [ -f app/build/outputs/apk/release/app-release.apk ]; then
-            cp app/build/outputs/apk/release/app-release.apk build_output/Tsuyu-Messenger-v1.0.0.apk
-          elif [ -f app/build/outputs/apk/release/app-release-unsigned.apk ]; then
-            cp app/build/outputs/apk/release/app-release-unsigned.apk build_output/Tsuyu-Messenger-v1.0.0.apk
-          else
-            find app/build/outputs/apk -name "*.apk" -exec cp {} build_output/Tsuyu-Messenger-v1.0.0.apk \;
+          gradle assembleRelease assembleDebug --stacktrace --no-daemon
+
+      - name: Collect & Package APK
+        run: |
+          mkdir -p release_apks
+          APK_FOUND=false
+          for apk in app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/debug/app-debug.apk; do
+            if [ -f "$apk" ]; then
+              cp "$apk" release_apks/Tsuyu-Messenger-v1.0.0.apk
+              cp "$apk" Tsuyu-Messenger.apk
+              echo "Collected APK: $apk -> release_apks/Tsuyu-Messenger-v1.0.0.apk ($(stat -c%s "$apk") bytes)"
+              APK_FOUND=true
+              break
+            fi
+          done
+
+          if [ "$APK_FOUND" = "false" ]; then
+            find app/build/outputs/apk -name "*.apk" -exec cp {} release_apks/Tsuyu-Messenger-v1.0.0.apk \;
           fi
-          echo "Built APK:"
-          ls -lh build_output/Tsuyu-Messenger-v1.0.0.apk
+
+          ls -lh release_apks/
+
+      - name: Snapshot sources to handof/
+        run: |
+          mkdir -p handof
+          zip -rq handof/Tsuyu-v1.0.0-src.zip . -x "*/build/*" "*/.gradle/*" "*/.git/*"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Tsuyu-Messenger-v1.0.0
-          path: build_output/Tsuyu-Messenger-v1.0.0.apk
+          path: release_apks/Tsuyu-Messenger-v1.0.0.apk
 
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      - name: Release APK on GitHub
         uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || contains(github.ref, 'arena/')
         with:
-          files: build_output/Tsuyu-Messenger-v1.0.0.apk
-          name: "Tsuyu Messenger Release v1.0.0"
-          tag_name: "v1.0.0"
+          tag_name: v1.0.6
+          name: "Tsuyu Messenger v1.0.6"
+          files: |
+            release_apks/Tsuyu-Messenger-v1.0.0.apk
+            handof/Tsuyu-v1.0.0-src.zip
           body: |
-            ## Tsuyu Messenger Android Release v1.0.0
-            - 🔒 Signal Double Ratchet True E2EE Encryption
-            - ⚡ Instant Realtime Firebase RTDB Messaging & Presence
-            - 🎙 Dynamic Amplitude Voice Messages & Telegram Video Circles ("Кружочки")
-            - 📞 P2P WebRTC Audio & Video Calls
-            - 🎨 Customization (Custom Fonts, Status Texts, Themes) & Ghost Mode
+            ## 📱 Tsuyu Messenger Android Release v1.0.6
+            - 🔒 **Signal Double Ratchet E2EE**: Сквозное шифрование сообщений, медиа и звонков.
+            - ⚡ **Firebase RTDB**: Мгновенный обмен данными без сторонних серверов.
+            - 🎙 **Голосовые & Кружочки**: Динамический визуализатор амплитуды и запись круглых видеосообщений.
+            - 📞 **P2P WebRTC**: Аудио и видеозвонки со стабильным фоновым сервисом.
+            - 🎨 **Кастомизация**: Поддержка кастомных шрифтов, кастомных статусов и звуков уведомлений.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
