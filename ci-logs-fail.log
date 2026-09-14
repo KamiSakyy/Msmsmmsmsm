@@ -1,0 +1,25 @@
+=== RUN 34869907659 on arena/01a09f1d-msmsmmsmsm ===
+--- PLATFORM ---
+platform jar incomplete — installing full API 34 platform jar
+FATAL: downloaded platform jar invalid
+META-INF/
+META-INF/MANIFEST.MF
+META-INF/frameworks__base__services__permission__android_common__services.permission.kotlin_module
+META-INF/kotlin-stdlib-jdk7.kotlin_module
+META-INF/kotlin-stdlib-jdk8.kotlin_module
+META-INF/kotlin-stdlib.kotlin_module
+META-INF/maven/
+META-INF/maven/com.google.errorprone/
+META-INF/maven/com.google.errorprone/error_prone_annotations/
+META-INF/maven/com.google.errorprone/error_prone_annotations/pom.properties
+META-INF/maven/com.google.errorprone/error_prone_annotations/pom.xml
+AndroidManifest.xml
+android/
+android/Manifest$permission.class
+android/Manifest$permission_group.class
+android/Manifest.class
+android/R$anim.class
+android/R$animator.class
+android/R$array.class
+android/R$attr.class
+no build log captured
