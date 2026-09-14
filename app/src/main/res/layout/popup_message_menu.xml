@@ -5,32 +5,73 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/bg_popup_menu"
-    android:paddingVertical="6dp"
-    android:minWidth="190dp">
+    android:paddingVertical="8dp"
+    android:minWidth="220dp">
 
-    <!-- reaction panel -->
+    <!-- Reaction pill panel matching Meow / TG -->
     <LinearLayout
+        android:id="@+id/reactionsPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="12dp"
-        android:paddingBottom="6dp">
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp">
 
         <ImageView
             android:id="@+id/reactHeart"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/bg_circle_btn"
             android:padding="8dp"
             android:src="@drawable/ic_heart"
             app:tint="#FF3B30" />
+
+        <TextView
+            android:id="@+id/reactThumbsUp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_circle_btn"
+            android:gravity="center"
+            android:text="👍"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/reactLaugh"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_circle_btn"
+            android:gravity="center"
+            android:text="😂"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/reactFire"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_circle_btn"
+            android:gravity="center"
+            android:text="🔥"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/reactSad"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_circle_btn"
+            android:gravity="center"
+            android:text="😢"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginVertical="6dp"
         android:background="#2C2C2E" />
 
     <LinearLayout
@@ -38,6 +79,13 @@
         style="@style/PopupItem">
         <ImageView style="@style/PopupIcon" android:src="@drawable/ic_reply" />
         <TextView style="@style/PopupText" android:text="Ответить" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menuCopy"
+        style="@style/PopupItem">
+        <ImageView style="@style/PopupIcon" android:src="@drawable/ic_copy" />
+        <TextView style="@style/PopupText" android:text="Скопировать" />
     </LinearLayout>
 
     <LinearLayout
@@ -52,6 +100,13 @@
         style="@style/PopupItem">
         <ImageView style="@style/PopupIcon" android:src="@drawable/ic_forward" />
         <TextView style="@style/PopupText" android:text="Переслать" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menuPin"
+        style="@style/PopupItem">
+        <ImageView style="@style/PopupIcon" android:src="@drawable/ic_pin" />
+        <TextView style="@style/PopupText" android:text="Закрепить" />
     </LinearLayout>
 
     <LinearLayout

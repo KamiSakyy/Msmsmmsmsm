@@ -87,6 +87,15 @@
                         android:layout_height="wrap_content" />
                 </LinearLayout>
 
+                <LinearLayout android:id="@+id/rowClearCache" style="@style/SettingRow">
+                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_delete" />
+                    <TextView android:id="@+id/cacheSizeText"
+                        style="@style/TsuyuSettingLabel"
+                        android:text="Очистить кэш (0.0 MB)"
+                        android:layout_weight="1"
+                        android:layout_width="0dp" />
+                </LinearLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

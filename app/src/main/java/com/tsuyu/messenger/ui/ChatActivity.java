@@ -623,22 +623,69 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
         pw.setElevation(18f);
         pw.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0));
 
-        v.findViewById(R.id.reactHeart).setOnClickListener(x -> {
+        View rHeart = v.findViewById(R.id.reactHeart);
+        if (rHeart != null) rHeart.setOnClickListener(x -> {
             toggleHeart(m);
             pw.dismiss();
         });
+        View rUp = v.findViewById(R.id.reactThumbsUp);
+        if (rUp != null) rUp.setOnClickListener(x -> {
+            toggleHeart(m);
+            pw.dismiss();
+        });
+        View rLaugh = v.findViewById(R.id.reactLaugh);
+        if (rLaugh != null) rLaugh.setOnClickListener(x -> {
+            toggleHeart(m);
+            pw.dismiss();
+        });
+        View rFire = v.findViewById(R.id.reactFire);
+        if (rFire != null) rFire.setOnClickListener(x -> {
+            toggleHeart(m);
+            pw.dismiss();
+        });
+        View rSad = v.findViewById(R.id.reactSad);
+        if (rSad != null) rSad.setOnClickListener(x -> {
+            toggleHeart(m);
+            pw.dismiss();
+        });
+
         v.findViewById(R.id.menuReply).setOnClickListener(x -> {
             setReply(m);
             pw.dismiss();
         });
+
+        View copyBtn = v.findViewById(R.id.menuCopy);
+        if (copyBtn != null) {
+            copyBtn.setVisibility(m.text != null && !m.text.isEmpty() ? View.VISIBLE : View.GONE);
+            copyBtn.setOnClickListener(x -> {
+                android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                if (cm != null && m.text != null) {
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("message", m.text));
+                    Toast.makeText(this, "Текст скопирован", Toast.LENGTH_SHORT).show();
+                }
+                pw.dismiss();
+            });
+        }
+
         View editBtn = v.findViewById(R.id.menuEdit);
-        editBtn.setVisibility(m.outgoing && m.attachments.isEmpty() ? View.VISIBLE : View.GONE);
-        editBtn.setOnClickListener(x -> {
-            editingId = m.id;
-            input.setText(m.text);
-            input.setSelection(input.getText().length());
-            pw.dismiss();
-        });
+        if (editBtn != null) {
+            editBtn.setVisibility(m.outgoing && m.attachments.isEmpty() ? View.VISIBLE : View.GONE);
+            editBtn.setOnClickListener(x -> {
+                editingId = m.id;
+                input.setText(m.text);
+                input.setSelection(input.getText().length());
+                pw.dismiss();
+            });
+        }
+
+        View pinBtn = v.findViewById(R.id.menuPin);
+        if (pinBtn != null) {
+            pinBtn.setOnClickListener(x -> {
+                Toast.makeText(this, "Сообщение закреплено", Toast.LENGTH_SHORT).show();
+                pw.dismiss();
+            });
+        }
+
         v.findViewById(R.id.menuForward).setOnClickListener(x -> {
             forward(m);
             pw.dismiss();

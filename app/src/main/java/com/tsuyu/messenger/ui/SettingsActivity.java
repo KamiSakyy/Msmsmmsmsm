@@ -23,11 +23,13 @@ import com.tsuyu.messenger.data.Repo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Locale;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private Prefs prefs;
     private TextView soundValue;
+    private TextView cacheSizeText;
     private ActivityResultLauncher<Intent> soundPicker;
 
     @Override
@@ -40,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         soundValue = findViewById(R.id.soundValue);
+        cacheSizeText = findViewById(R.id.cacheSizeText);
 
         Switch swNotif = findViewById(R.id.swNotif);
         Switch swVibrate = findViewById(R.id.swVibrate);
@@ -76,15 +79,70 @@ public class SettingsActivity extends AppCompatActivity {
         findViewById(R.id.rowKeys).setOnClickListener(v ->
                 startActivity(new Intent(this, KeysActivity.class)));
 
+        findViewById(R.id.rowClearCache).setOnClickListener(v -> clearAppCache());
+
         findViewById(R.id.rowLogout).setOnClickListener(v -> logout());
 
         renderSound();
+        renderCacheSize();
     }
 
     private void renderSound() {
         String s = prefs.notificationSoundRaw();
         if (s == null || "builtin".equals(s)) soundValue.setText("Стандартный Tsuyu");
         else soundValue.setText("Свой звук");
+    }
+
+    private void renderCacheSize() {
+        new Thread(() -> {
+            long size = getDirSize(getCacheDir());
+            if (getExternalCacheDir() != null) size += getDirSize(getExternalCacheDir());
+            double mb = size / (1024.0 * 1024.0);
+            String text = String.format(Locale.US, "Очистить кэш (%.1f MB)", mb);
+            runOnUiThread(() -> {
+                if (cacheSizeText != null) cacheSizeText.setText(text);
+            });
+        }).start();
+    }
+
+    private long getDirSize(File dir) {
+        if (dir == null || !dir.exists()) return 0;
+        long total = 0;
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) total += getDirSize(f);
+                else total += f.length();
+            }
+        }
+        return total;
+    }
+
+    private void clearAppCache() {
+        new AlertDialog.Builder(this, R.style.Theme_Tsuyu_Dialog)
+                .setTitle("Очистить кэш?")
+                .setMessage("Будут удалены временные файлы и превью медиа.")
+                .setPositiveButton("Очистить", (d, w) -> new Thread(() -> {
+                    deleteDir(getCacheDir());
+                    if (getExternalCacheDir() != null) deleteDir(getExternalCacheDir());
+                    runOnUiThread(() -> {
+                        renderCacheSize();
+                        Toast.makeText(this, "Кэш очищен", Toast.LENGTH_SHORT).show();
+                    });
+                }).start())
+                .setNegativeButton("Отмена", null)
+                .show();
+    }
+
+    private void deleteDir(File dir) {
+        if (dir == null || !dir.exists()) return;
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) deleteDir(f);
+                else f.delete();
+            }
+        }
     }
 
     private void chooseSound() {
@@ -106,7 +164,6 @@ public class SettingsActivity extends AppCompatActivity {
                 .show();
     }
 
-    /** Copies the chosen mp3 into app storage so the URI stays valid. */
     private void importSound(Uri uri) {
         new Thread(() -> {
             try {
@@ -119,7 +176,7 @@ public class SettingsActivity extends AppCompatActivity {
                     while ((n = in.read(buf)) > 0) {
                         fos.write(buf, 0, n);
                         total += n;
-                        if (total > 3 * 1024 * 1024) break; // 1s clip is tiny; cap anyway
+                        if (total > 3 * 1024 * 1024) break;
                     }
                 }
                 prefs.setNotificationSound(Uri.fromFile(out).toString());
