@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/callRoot"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#000000">
+
+    <FrameLayout
+        android:id="@+id/remoteVideoBox"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:background="#0A0A0A"/>
+
+    <!-- local PiP -->
+    <FrameLayout
+        android:id="@+id/localVideoBox"
+        android:layout_width="110dp" android:layout_height="170dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/bg_collage">
+
+    </FrameLayout>
+
+    <!-- info -->
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/callAvatarWrap"
+            android:layout_width="110dp" android:layout_height="110dp">
+            <View
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:background="@drawable/bg_avatar_default"/>
+            <TextView
+                android:id="@+id/tvCallLetter"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="40sp"
+                android:textStyle="bold"/>
+            <ImageView
+                android:id="@+id/ivCallAvatar"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/bg_avatar"
+                android:visibility="gone"/>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvCallName"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvCallSub"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/tvCallTimer"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/text_dim"
+            android:textSize="13sp"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <!-- accept / decline -->
+    <LinearLayout
+        android:id="@+id/callAnswerRow"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="28dp">
+
+        <FrameLayout
+            android:id="@+id/btnCallDecline"
+            android:layout_width="64dp" android:layout_height="64dp"
+            android:layout_marginEnd="48dp"
+            android:background="@drawable/bg_call_btn_decline">
+            <ImageView
+                android:layout_width="28dp" android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_handset_down"
+                android:tint="@color/white"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnCallAccept"
+            android:layout_width="64dp" android:layout_height="64dp"
+            android:background="@drawable/bg_call_btn_answer">
+            <ImageView
+                android:layout_width="28dp" android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_call"
+                android:tint="@color/white"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- active controls -->
+    <LinearLayout
+        android:id="@+id/callControlRow"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="28dp"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:id="@+id/btnCallMute"
+            android:layout_width="56dp" android:layout_height="56dp"
+            android:layout_marginEnd="36dp"
+            android:background="@drawable/bg_call_btn_mute">
+            <ImageView
+                android:layout_width="24dp" android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_mic_off"
+                android:tint="@color/white"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnCallVideo"
+            android:layout_width="56dp" android:layout_height="56dp"
+            android:layout_marginStart="36dp"
+            android:background="@drawable/bg_call_btn_mute">
+            <ImageView
+                android:layout_width="24dp" android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_video_call_off"
+                android:tint="@color/white"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/btnCallEnd"
+        android:layout_width="64dp" android:layout_height="64dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="-20dp"
+        android:background="@drawable/bg_call_btn_decline">
+        <ImageView
+            android:layout_width="28dp" android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_handset_down"
+            android:rotation="135"
+            android:tint="@color/white"/>
+    </FrameLayout>
+</FrameLayout>

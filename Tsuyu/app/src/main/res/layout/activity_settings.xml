@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_black">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="6dp" android:paddingEnd="12dp"
+        android:layout_marginTop="25dp">
+
+        <FrameLayout
+            android:id="@+id/btnBack"
+            android:layout_width="40dp" android:layout_height="40dp"
+            android:background="@drawable/bg_header_btn"
+            android:layout_marginEnd="10dp">
+            <ImageView
+                android:layout_width="22dp" android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_back"
+                android:tint="@color/white"/>
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Настройки"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="30dp">
+
+            <TextView style="@style/SettingsSection" android:text="КАСТОМИЗАЦИЯ"/>
+
+            <LinearLayout android:id="@+id/setFont" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_font"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Шрифт"/>
+                    <TextView android:id="@+id/tvFontSub" style="@style/SettingsSub" android:text="Системный"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setFontSize" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_font"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Размер текста"/>
+                    <TextView android:id="@+id/tvFontSizeSub" style="@style/SettingsSub" android:text="14"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setTextStyle" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_font"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Стиль текста"/>
+                    <TextView android:id="@+id/tvTextStyleSub" style="@style/SettingsSub" android:text="Обычный"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setStatusTexts" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_edit"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Тексты статусов"/>
+                    <TextView style="@style/SettingsSub" android:text="Печатает, в сети, было в сети..."/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView style="@style/SettingsSection" android:text="УВЕДОМЛЕНИЯ"/>
+
+            <LinearLayout android:id="@+id/setSound" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_sound"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Звук уведомлений"/>
+                    <TextView android:id="@+id/tvSoundSub" style="@style/SettingsSub" android:text="Стандартный"/>
+                </LinearLayout>
+                <CheckBox android:id="@+id/cbSoundOn" style="@style/SettingsSwitch" android:checked="true"/>
+            </LinearLayout>
+
+            <TextView style="@style/SettingsSection" android:text="КОНФИДЕНЦИАЛЬНОСТЬ"/>
+
+            <LinearLayout android:id="@+id/setGhost" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_ghost"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Режим призрака"/>
+                    <TextView style="@style/SettingsSub" android:text="Не обновлять время захода, не ставить прочитано"/>
+                </LinearLayout>
+                <CheckBox android:id="@+id/cbGhost" style="@style/SettingsSwitch"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setWhoCanWrite" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_lock"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Кто может мне писать"/>
+                    <TextView android:id="@+id/tvWhoCanWrite" style="@style/SettingsSub" android:text="Все"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setWhoSeeLastSeen" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_user"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Кто видит моё время захода"/>
+                    <TextView android:id="@+id/tvWhoSeeLastSeen" style="@style/SettingsSub" android:text="Все"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setWhoSeePhoto" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_photo"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Кто видит моё фото профиля"/>
+                    <TextView android:id="@+id/tvWhoSeePhoto" style="@style/SettingsSub" android:text="Все"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setWhoSeeBio" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_edit"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="О себе (кто видит)"/>
+                    <TextView android:id="@+id/tvWhoSeeBio" style="@style/SettingsSub" android:text="Все"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView style="@style/SettingsSection" android:text="БЕЗОПАСНОСТЬ"/>
+
+            <LinearLayout android:id="@+id/setKeys" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_key"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="Ключи E2EE"/>
+                    <TextView style="@style/SettingsSub" android:text="Смена, экспорт, импорт ключей"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/setAbout" style="@style/SettingsRow">
+                <ImageView style="@style/SettingsIcon" android:src="@drawable/ic_settings"/>
+                <LinearLayout style="@style/SettingsTextWrap">
+                    <TextView style="@style/SettingsTitle" android:text="О приложении"/>
+                    <TextView style="@style/SettingsSub" android:text="Tsuyu 1.0 • Double Ratchet • RTDB"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#000000"
+    android:keepScreenOn="true">
+
+    <FrameLayout
+        android:id="@+id/circlePreviewBox"
+        android:layout_width="260dp" android:layout_height="260dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center">
+        <SurfaceView
+            android:id="@+id/previewSurface"
+            android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <View
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:background="@drawable/bg_circle_ring"/>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvCircleTimer"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="190dp"
+        android:translationY="140dp"
+        android:text="0:00"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="48dp">
+
+        <FrameLayout
+            android:id="@+id/btnCircleFlip"
+            android:layout_width="52dp" android:layout_height="52dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_circle_btn_dark">
+            <ImageView
+                android:layout_width="22dp" android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_refresh"
+                android:tint="@color/white"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnCircleRecord"
+            android:layout_width="72dp" android:layout_height="72dp"
+            android:background="@drawable/bg_call_btn_answer">
+            <View
+                android:layout_width="24dp" android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:background="@android:color/white"
+                android:backgroundTint="@android:color/white"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnCircleCancel"
+            android:layout_width="52dp" android:layout_height="52dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/bg_circle_btn_dark">
+            <ImageView
+                android:layout_width="22dp" android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_close"
+                android:tint="@color/white"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="48dp"
+        android:text="Кружочек"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+</FrameLayout>

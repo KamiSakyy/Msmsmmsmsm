@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_black">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="6dp" android:paddingEnd="12dp"
+        android:layout_marginTop="25dp">
+
+        <FrameLayout
+            android:id="@+id/btnBack"
+            android:layout_width="40dp" android:layout_height="40dp"
+            android:background="@drawable/bg_header_btn"
+            android:layout_marginEnd="10dp">
+            <ImageView
+                android:layout_width="22dp" android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_back"
+                android:tint="@color/white"/>
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ключи E2EE"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Отпечаток вашего аккаунта (SAS)"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"/>
+
+            <TextView
+                android:id="@+id/tvFingerprint"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_keybox"
+                android:padding="12dp"
+                android:fontFamily="monospace"
+                android:textColor="@color/key_green"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Приватный ключ никогда не покидает ваше устройство. Публичные ключи обмениваются в каждом сообщении."
+                android:textColor="@color/text_dim"
+                android:textSize="12sp"
+                android:lineSpacingMultiplier="1.4"/>
+
+            <Button
+                android:id="@+id/btnRotate"
+                style="@style/TsuyuButton"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_btn_outline"
+                android:textColor="@color/white"
+                android:text="Сменить приватный ключ"/>
+
+            <Button
+                android:id="@+id/btnExport"
+                style="@style/TsuyuButton"
+                android:background="@drawable/bg_btn_outline"
+                android:textColor="@color/white"
+                android:text="Скачать ключи (новый телефон)"/>
+
+            <Button
+                android:id="@+id/btnImport"
+                style="@style/TsuyuButton"
+                android:background="@drawable/bg_btn_outline"
+                android:textColor="@color/white"
+                android:text="Импортировать ключи"/>
+
+            <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Экспорт защищает паролем (PBKDF2 + AES-256-GCM). Без пароля ключи расшифровать невозможно."
+                android:textColor="@color/text_dim"
+                android:textSize="12sp"
+                android:lineSpacingMultiplier="1.4"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg_black">
+
+    <io.tsuyu.app.ui.ZoomImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:scaleType="fitCenter"/>
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/tvViewerInfo"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:background="@drawable/bg_media_time"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+        <FrameLayout
+            android:id="@+id/btnViewerDownload"
+            android:layout_width="42dp" android:layout_height="42dp"
+            android:background="@drawable/bg_play_overlay"
+            android:layout_marginStart="10dp">
+            <ImageView
+                android:layout_width="20dp" android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_download"
+                android:tint="@color/white"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnViewerClose"
+            android:layout_width="42dp" android:layout_height="42dp"
+            android:background="@drawable/bg_play_overlay"
+            android:layout_marginStart="10dp">
+            <ImageView
+                android:layout_width="20dp" android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_close"
+                android:tint="@color/white"/>
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

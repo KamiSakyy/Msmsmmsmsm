@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_black">#000000</color>
+    <color name="surface">#0d0d0d</color>
+    <color name="card">#141416</color>
+    <color name="bubble_in">#1c1c1e</color>
+    <color name="bubble_out">#2c2c2e</color>
+    <color name="border">#1c1c1c</color>
+    <color name="border2">#2c2c2e</color>
+    <color name="input_bg">#161616</color>
+    <color name="field_bg">#1c1c1e</color>
+    <color name="field_border">#2a2a2c</color>
+    <color name="text_primary">#ffffff</color>
+    <color name="text_secondary">#8e8e93</color>
+    <color name="text_dim">#666666</color>
+    <color name="accent">#0a84ff</color>
+    <color name="green">#34c759</color>
+    <color name="red">#ff3b30</color>
+    <color name="orange">#ff9500</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="overlay">#99000000</color>
+    <color name="icon_gray">#aaaaaa</color>
+    <color name="key_green">#34c759</color>
+    <color name="avatar_bg">#222222</color>
+</resources>
