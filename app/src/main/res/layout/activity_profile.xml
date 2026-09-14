@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:textColor="@color/accent"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <TextView
@@ -96,7 +96,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_chat"
-                        app:tint="@color/accent" />
+                        app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -153,7 +153,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_video"
-                        app:tint="@color/accent" />
+                        app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"

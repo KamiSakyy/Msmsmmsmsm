@@ -98,7 +98,7 @@ public class DialogAdapter extends RecyclerView.Adapter<DialogAdapter.VH> {
         h.previewThumb.setVisibility(View.GONE);
         if (d.typing) {
             h.preview.setText(prefs.wordTyping() + "…");
-            h.preview.setTextColor(0xFF0A84FF);
+            h.preview.setTextColor(0xFF34C759);
         } else if (d.last == null) {
             h.preview.setText("");
             h.preview.setTextColor(0xFF888888);
