@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:background="@color/bg">
 
-        <!-- Header (Clean Meow OLED style, no right avatar) -->
+        <!-- Header (Clean Meow OLED style, minimal with left menu only) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -26,7 +26,7 @@
                 android:id="@+id/btnDrawerMenu"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginEnd="12dp"
                 android:background="@drawable/bg_circle_btn"
                 android:padding="10dp"
                 android:src="@drawable/ic_menu"
@@ -41,16 +41,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.08" />
-
-            <!-- Ghost Mode quick toggle / indicator in header -->
-            <ImageView
-                android:id="@+id/btnGhost"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_circle_btn"
-                android:padding="9dp"
-                android:src="@drawable/ic_ghost"
-                app:tint="@color/text_secondary" />
         </LinearLayout>
 
         <!-- Search Bar -->

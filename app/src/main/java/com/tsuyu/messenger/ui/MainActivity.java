@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private RecyclerView list;
     private EditText searchInput;
-    private ImageView btnClearSearch, btnGhost, btnDrawerMenu;
+    private ImageView btnClearSearch, btnDrawerMenu;
     private LinearLayout emptyState;
 
     private TextView tabAll, tabDirect, tabUnread;
@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         list = findViewById(R.id.dialogsList);
         searchInput = findViewById(R.id.searchInput);
         btnClearSearch = findViewById(R.id.btnClearSearch);
-        btnGhost = findViewById(R.id.btnGhost);
         emptyState = findViewById(R.id.emptyState);
 
         tabAll = findViewById(R.id.tabAll);
@@ -124,17 +123,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         updateGhostIcon();
-        if (btnGhost != null) {
-            btnGhost.setOnClickListener(v -> {
-                boolean next = !prefs.ghost();
-                prefs.setGhost(next);
-                updateGhostIcon();
-                Ui.tapScale(btnGhost);
-                repo.goOnline();
-                Toast.makeText(this, next ? "👻 Режим призрака включен (невидимка)"
-                        : "Режим призрака выключен", Toast.LENGTH_SHORT).show();
-            });
-        }
 
         btnClearSearch.setOnClickListener(v -> searchInput.setText(""));
         setupSearch();
@@ -432,18 +420,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateGhostIcon() {
         boolean g = prefs.ghost();
-        if (btnGhost != null) {
-            btnGhost.setColorFilter(ContextCompat.getColor(this,
-                    g ? R.color.accent : R.color.text_secondary));
-            btnGhost.setAlpha(g ? 1.0f : 0.6f);
-        }
         if (drawerOnlineStatus != null) {
             if (g) {
-                drawerOnlineStatus.setText("👻 невидимка (призрак)");
-                drawerOnlineStatus.setTextColor(0xFFAF52DE);
+                drawerOnlineStatus.setText(prefs.wordLastSeen() + " в " + Fmt.time(System.currentTimeMillis()));
+                drawerOnlineStatus.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             } else {
-                drawerOnlineStatus.setText("● в сети");
-                drawerOnlineStatus.setTextColor(0xFF34C759);
+                drawerOnlineStatus.setText("● " + prefs.wordOnline());
+                drawerOnlineStatus.setTextColor(ContextCompat.getColor(this, R.color.green));
             }
         }
         if (drawerSwitchGhost != null && drawerSwitchGhost.isChecked() != g) {
