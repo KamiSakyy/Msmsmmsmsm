@@ -227,10 +227,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (drawerBio != null) {
-            drawerBio.setOnClickListener(v -> {
-                drawerLayout.closeDrawer(GravityCompat.START);
-                startActivity(new Intent(this, ProfileActivity.class));
-            });
+            drawerBio.setOnClickListener(v -> showQuickEditBioDialog());
         }
 
         findViewById(R.id.drawerRowCache).setOnClickListener(v -> clearCachePrompt());
@@ -262,6 +259,61 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return total;
+    }
+
+    private void showQuickEditBioDialog() {
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(48, 24, 48, 24);
+
+        EditText editName = new EditText(this);
+        editName.setHint("Имя");
+        editName.setTextColor(0xFFFFFFFF);
+        editName.setHintTextColor(0xFF888888);
+        editName.setBackgroundResource(R.drawable.bg_input);
+        editName.setPadding(36, 32, 36, 32);
+        if (drawerName != null && drawerName.getText() != null) {
+            editName.setText(drawerName.getText().toString());
+        }
+        layout.addView(editName);
+
+        android.view.View spacer = new android.view.View(this);
+        spacer.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 24));
+        layout.addView(spacer);
+
+        EditText editBio = new EditText(this);
+        editBio.setHint("Описание (статус)");
+        editBio.setTextColor(0xFFFFFFFF);
+        editBio.setHintTextColor(0xFF888888);
+        editBio.setBackgroundResource(R.drawable.bg_input);
+        editBio.setPadding(36, 32, 36, 32);
+        if (drawerBio != null && drawerBio.getText() != null) {
+            String currentBio = drawerBio.getText().toString();
+            if (!currentBio.startsWith("Нажмите")) {
+                editBio.setText(currentBio);
+            }
+        }
+        layout.addView(editBio);
+
+        new AlertDialog.Builder(this, R.style.Theme_Tsuyu_Dialog)
+                .setTitle("Редактирование профиля")
+                .setView(layout)
+                .setPositiveButton("Сохранить", (d, w) -> {
+                    String newName = editName.getText().toString().trim();
+                    String newBio = editBio.getText().toString().trim();
+                    if (!newName.isEmpty()) {
+                        repo.updateProfileField("name", newName);
+                        if (drawerName != null) drawerName.setText(newName);
+                    }
+                    repo.updateProfileField("bio", newBio);
+                    if (drawerBio != null) {
+                        drawerBio.setText(newBio.isEmpty() ? "Нажмите, чтобы изменить описание..." : newBio);
+                    }
+                    Toast.makeText(this, "Профиль обновлен", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
     }
 
     private void clearCachePrompt() {

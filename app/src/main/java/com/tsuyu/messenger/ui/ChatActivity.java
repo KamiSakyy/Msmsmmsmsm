@@ -442,19 +442,37 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
     }
 
     private void showAttachSheet() {
-        String[] options = {"Фото / Видео", "Музыка / Аудио", "Файл"};
+        String[] options = {
+                "📷  Фото и Галерея",
+                "🎥  Видеозапись",
+                "⭕  Видеосообщение (кружочек)",
+                "🎵  Музыка и Аудио",
+                "📄  Документ / Файл"
+        };
         new AlertDialog.Builder(this, R.style.Theme_Tsuyu_Dialog)
+                .setTitle("Вложения")
                 .setItems(options, (d, which) -> {
                     if (which == 0) {
                         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        i.setType("*/*");
-                        i.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+                        i.setType("image/*");
                         i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                         i.addCategory(Intent.CATEGORY_OPENABLE);
                         mediaPicker.launch(i);
+                    } else if (which == 1) {
+                        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        i.setType("video/*");
+                        i.addCategory(Intent.CATEGORY_OPENABLE);
+                        mediaPicker.launch(i);
+                    } else if (which == 2) {
+                        openCircle();
+                    } else if (which == 3) {
+                        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        i.setType("audio/*");
+                        i.addCategory(Intent.CATEGORY_OPENABLE);
+                        audioPicker.launch(i);
                     } else {
                         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        i.setType(which == 1 ? "audio/*" : "*/*");
+                        i.setType("*/*");
                         i.addCategory(Intent.CATEGORY_OPENABLE);
                         audioPicker.launch(i);
                     }
@@ -645,6 +663,11 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
         });
         View rSad = v.findViewById(R.id.reactSad);
         if (rSad != null) rSad.setOnClickListener(x -> {
+            toggleHeart(m);
+            pw.dismiss();
+        });
+        View rSurprise = v.findViewById(R.id.reactSurprise);
+        if (rSurprise != null) rSurprise.setOnClickListener(x -> {
             toggleHeart(m);
             pw.dismiss();
         });

@@ -1,5 +1,7 @@
 package com.tsuyu.messenger.ui;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,6 +36,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Repo repo;
     private String uid, me;
     private boolean self;
+    private boolean userLoaded = false;
     private Models.User user;
 
     private ImageView avatar, avatarBadge;
@@ -69,6 +72,16 @@ public class ProfileActivity extends AppCompatActivity {
 
         picker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), u -> {
             if (u != null) changeAvatar(u);
+        });
+
+        username.setOnClickListener(v -> {
+            if (user != null && user.username != null) {
+                ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                if (cm != null) {
+                    cm.setPrimaryClip(ClipData.newPlainText("username", "@" + user.username));
+                    Toast.makeText(this, "Юзернейм @" + user.username + " скопирован", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         if (self) {
@@ -123,6 +136,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void render() {
+        if (user == null) return;
         name.setText(user.name);
         username.setText(user.username == null ? "" : "@" + user.username);
 
@@ -131,11 +145,14 @@ public class ProfileActivity extends AppCompatActivity {
         Ui.setAvatar(avatar, shown, user.uid, user.name);
 
         boolean bioVisible = self || allowed(user.pBio);
-        bio.setText(bioVisible && user.bio != null && !user.bio.isEmpty() ? user.bio : "Нет описания");
+        String bioText = (bioVisible && user.bio != null && !user.bio.trim().isEmpty())
+                ? user.bio : "Нет описания";
+        bio.setText(bioText);
 
-        if (self) {
-            if (inName.getText().length() == 0) inName.setText(user.name);
-            if (inBio.getText().length() == 0 && user.bio != null) inBio.setText(user.bio);
+        if (self && !userLoaded) {
+            inName.setText(user.name);
+            inBio.setText(user.bio != null ? user.bio : "");
+            userLoaded = true;
         }
     }
 
@@ -153,6 +170,7 @@ public class ProfileActivity extends AppCompatActivity {
                 long lastSeen = ls instanceof Number ? ((Number) ls).longValue() : 0;
                 boolean hidden = user != null && "none".equals(user.pLastSeen) && !self;
                 status.setText(Fmt.lastSeen(ProfileActivity.this, online, lastSeen, hidden));
+                status.setTextColor(online ? 0xFF34C759 : 0xFF8E8E93);
             }
             @Override public void onCancelled(@NonNull DatabaseError e) { }
         });
@@ -163,10 +181,12 @@ public class ProfileActivity extends AppCompatActivity {
             try {
                 MediaCodecUtil.Encoded e = MediaCodecUtil.encodeImage(this, uriValue, 320, 80);
                 repo.userRef(me).child("avatar").setValue(ProfileCrypto.seal(me, e.base64));
-                runOnUiThread(() -> Toast.makeText(this, "Аватарка обновлена",
-                        Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Аватарка обновлена", Toast.LENGTH_SHORT).show();
+                    Ui.setAvatar(avatar, e.base64, me, user != null ? user.name : "");
+                });
             } catch (Exception ex) {
-                runOnUiThread(() -> Toast.makeText(this, "Ошибка загрузки",
+                runOnUiThread(() -> Toast.makeText(this, "Ошибка загрузки фото",
                         Toast.LENGTH_SHORT).show());
             }
         }).start();
@@ -175,9 +195,18 @@ public class ProfileActivity extends AppCompatActivity {
     private void save() {
         String n = inName.getText().toString().trim();
         String b = inBio.getText().toString().trim();
-        if (n.isEmpty()) { Toast.makeText(this, "Введите имя", Toast.LENGTH_SHORT).show(); return; }
+        if (n.isEmpty()) {
+            Toast.makeText(this, "Введите имя", Toast.LENGTH_SHORT).show();
+            return;
+        }
         repo.updateProfileField("name", n);
         repo.updateProfileField("bio", b);
-        Toast.makeText(this, "Сохранено", Toast.LENGTH_SHORT).show();
+        if (user != null) {
+            user.name = n;
+            user.bio = b;
+        }
+        name.setText(n);
+        bio.setText(b.isEmpty() ? "Нет описания" : b);
+        Toast.makeText(this, "Профиль успешно сохранен", Toast.LENGTH_SHORT).show();
     }
 }
