@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Tsuyu</string>
+    <string name="channel_messages">Tsuyu Сообщения</string>
+    <string name="channel_messages_desc">Уведомления о новых зашифрованных сообщениях</string>
+    <string name="channel_calls">Tsuyu Звонки</string>
+    <string name="channel_calls_desc">Уведомления о входящих аудио и видеозвонках</string>
+    <string name="channel_service">Фоновый сервис Tsuyu</string>
+    <string name="channel_service_desc">Поддержание постоянного E2EE соединения</string>
+    <string name="reply_label">Ответить...</string>
+    <string name="reply_action">Ответить</string>
+</resources>

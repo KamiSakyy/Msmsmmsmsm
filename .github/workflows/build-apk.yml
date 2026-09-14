@@ -1,0 +1,70 @@
+name: Build Tsuyu Messenger Android APK
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+
+      - name: Grant Execute Permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Build Android Release APK
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Copy & Rename APK
+        run: |
+          mkdir -p build_output
+          if [ -f app/build/outputs/apk/release/app-release.apk ]; then
+            cp app/build/outputs/apk/release/app-release.apk build_output/Tsuyu-Messenger-v1.0.0.apk
+          elif [ -f app/build/outputs/apk/release/app-release-unsigned.apk ]; then
+            cp app/build/outputs/apk/release/app-release-unsigned.apk build_output/Tsuyu-Messenger-v1.0.0.apk
+          else
+            find app/build/outputs/apk -name "*.apk" -exec cp {} build_output/Tsuyu-Messenger-v1.0.0.apk \;
+          fi
+          echo "Built APK:"
+          ls -lh build_output/Tsuyu-Messenger-v1.0.0.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tsuyu-Messenger-v1.0.0
+          path: build_output/Tsuyu-Messenger-v1.0.0.apk
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build_output/Tsuyu-Messenger-v1.0.0.apk
+          name: "Tsuyu Messenger Release v1.0.0"
+          tag_name: "v1.0.0"
+          body: |
+            ## Tsuyu Messenger Android Release v1.0.0
+            - 🔒 Signal Double Ratchet True E2EE Encryption
+            - ⚡ Instant Realtime Firebase RTDB Messaging & Presence
+            - 🎙 Dynamic Amplitude Voice Messages & Telegram Video Circles ("Кружочки")
+            - 📞 P2P WebRTC Audio & Video Calls
+            - 🎨 Customization (Custom Fonts, Status Texts, Themes) & Ghost Mode
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
