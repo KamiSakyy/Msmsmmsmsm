@@ -50,29 +50,7 @@ jobs:
           fi
           SM=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
           yes | $SM --licenses > /dev/null 2>&1 || true
-                    cat > /tmp/JarCheck.java <<'JEOF'
-import java.util.jar.JarFile;
-public class JarCheck {
-  public static void main(String[] a) throws Exception {
-    try (JarFile jf = new JarFile(a[0])) {
-      boolean has = jf.getJarEntry("android/hardware/camera2/CameraCaptureRequest.class") != null;
-      System.out.println(has ? "1" : "0");
-      if (a.length > 1 && a[1].equals("dump")) {
-        int n = 0;
-        var en = jf.entries();
-        while (en.hasMoreElements() && n < 12) {
-          var e = en.nextElement();
-          if (e.getName().contains("camera2") && e.getName().endsWith(".class")) {
-            System.out.println("ENTRY " + e.getName() + " size=" + e.getSize());
-            n++;
-          }
-        }
-      }
-    } catch (Throwable t) { System.out.println("ERR " + t); }
-  }
-}
-JEOF
-          javac -d /tmp /tmp/JarCheck.java
+                    javac -d /tmp "$GITHUB_WORKSPACE/ci/JarCheck.java"
           good_jar() { [ -f "$1" ] && [ "$(java -cp /tmp JarCheck "$1" 2>/dev/null)" = "1" ]; }
           PICK=""; PICKSDK=""; SRC=""
           CANDS=""
