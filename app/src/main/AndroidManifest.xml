@@ -77,6 +77,9 @@
         <activity android:name=".ui.KeysActivity"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".ui.ForwardActivity"
+            android:screenOrientation="portrait" />
+
         <activity android:name=".ui.MediaViewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Tsuyu.Fullscreen" />
