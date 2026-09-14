@@ -41,10 +41,21 @@ jobs:
           mv cmdline-tools latest
           rm tools.zip
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          # runner image may ship a broken/partial platform jar — force clean reinstall
+          rm -rf "$ANDROID_HOME/platforms/android-34" "$ANDROID_HOME/build-tools/34.0.0"
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
             "platform-tools" \
             "platforms;android-34" \
             "build-tools;34.0.0"
+          JAR="$ANDROID_HOME/platforms/android-34/android.jar"
+          ls -la "$JAR"
+          if ! unzip -l "$JAR" | grep -q "hardware/camera2/CameraCaptureRequest.class"; then
+            echo "!!! android-34 jar is BROKEN (no camera2) — reinstalling once more"
+            rm -rf "$ANDROID_HOME/platforms/android-34"
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
+            unzip -l "$JAR" | grep -q "hardware/camera2/CameraCaptureRequest.class" || { echo "FATAL: platform-34 jar still broken"; exit 1; }
+          fi
+          echo "platform-34 jar OK: $(unzip -l "$JAR" | grep -c 'camera2') camera2 classes"
 
       - name: Cache Gradle
         uses: actions/cache@v4
