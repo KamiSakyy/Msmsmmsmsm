@@ -34,6 +34,27 @@ jobs:
           sdk: 34
           build-tools: 34.0.0
 
+      - name: Install Android platform (API 34)
+        shell: bash
+        run: |
+          set -e
+          PJ="$ANDROID_SDK_ROOT/platforms/android-34/android.jar"
+          need() { jar tf "$PJ" 2>/dev/null | grep -q "^$1$"; }
+          if need "android/hardware/camera2/CameraCaptureRequest.class" && need "android/view/GestureDetector\$SimpleOnDoubleTapListener.class"; then
+            echo "platform jar OK"
+            exit 0
+          fi
+          echo "platform jar incomplete — installing full API 34 platform jar"
+          V="14-robolectric-10818077"
+          for M in "https://repo1.maven.org/maven2" "https://maven-central.storage-download.googleapis.com/maven2"; do
+            curl -sSL --http1.1 --max-time 600 -o /tmp/android-34.jar "$M/org/robolectric/android-all/$V/android-all-$V.jar" && break
+          done
+          jar tf /tmp/android-34.jar | grep -q "^android/hardware/camera2/CameraCaptureRequest.class$" || { echo "FATAL: downloaded platform jar invalid"; jar tf /tmp/android-34.jar | head -20; exit 1; }
+          mkdir -p "$ANDROID_SDK_ROOT/platforms/android-34"
+          [ -f "$PJ" ] && mv "$PJ" "$PJ.bak"
+          cp /tmp/android-34.jar "$PJ"
+          echo "platform jar installed (API 34, $(stat -c%s "$PJ") bytes)"
+
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
