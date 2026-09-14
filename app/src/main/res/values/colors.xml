@@ -24,4 +24,11 @@
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
     <color name="scrim">#B3000000</color>
+
+    <!-- Compat & Launcher colors -->
+    <color name="colorPrimary">#0A84FF</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#0A84FF</color>
+    <color name="background">#000000</color>
+    <color name="ic_launcher_background">#000000</color>
 </resources>
