@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tsuyu</string>
+    <string name="e2e_badge">End-to-End • Double Ratchet</string>
+    <string name="login_sub">Сквозное шифрование. Ключи никогда не покидают ваше устройство.</string>
+    <string name="email">Email</string>
+    <string name="password">Пароль</string>
+    <string name="login">Войти</string>
+    <string name="register">Создать аккаунт</string>
+    <string name="no_account">Нет аккаунта?</string>
+    <string name="have_account">Уже есть аккаунт?</string>
+    <string name="message_hint">Сообщение...</string>
+    <string name="search_hint">Поиск по @ и диалогам...</string>
+    <string name="typing">печатает...</string>
+    <string name="online">в сети</string>
+    <string name="offline">не в сети</string>
+    <string name="recently">недавно</string>
+</resources>

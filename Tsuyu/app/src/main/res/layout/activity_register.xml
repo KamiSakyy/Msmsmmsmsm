@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg_black">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <ImageView
+            android:layout_width="30dp" android:layout_height="30dp"
+            android:src="@drawable/ic_back"
+            android:id="@+id/btnBack"
+            android:padding="4dp"/>
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Tsuyu"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            android:fontFamily="sans-serif-black"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="2dp"/>
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Создание аккаунта"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:layout_marginBottom="20dp"/>
+
+        <ScrollView
+            android:layout_width="match_parent" android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:scrollbars="none">
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="18dp">
+                    <FrameLayout
+                        android:id="@+id/avatarPick"
+                        android:layout_width="84dp" android:layout_height="84dp">
+                        <View android:layout_width="84dp" android:layout_height="84dp"
+                            android:background="@drawable/bg_avatar_default"/>
+                        <TextView
+                            android:id="@+id/tvAvatarLetter"
+                            android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="T"
+                            android:textColor="@color/white"
+                            android:textSize="34sp"
+                            android:textStyle="bold"/>
+                        <ImageView
+                            android:id="@+id/ivAvatarPreview"
+                            android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/bg_avatar"
+                            android:visibility="gone"/>
+                        <ImageView
+                            android:layout_width="26dp" android:layout_height="26dp"
+                            android:layout_gravity="bottom|end"
+                            android:background="@drawable/bg_circle_btn"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_camera"
+                            android:tint="@color/black"/>
+                    </FrameLayout>
+                </LinearLayout>
+
+                <EditText android:id="@+id/etFirst" style="@style/TsuyuInput"
+                    android:hint="Имя" android:inputType="textPersonName" android:maxLines="1" android:maxLength="40"/>
+                <EditText android:id="@+id/etLast" style="@style/TsuyuInput"
+                    android:hint="Фамилия" android:inputType="textPersonName" android:maxLines="1" android:maxLength="40"/>
+                <EditText android:id="@+id/etUsername" style="@style/TsuyuInput"
+                    android:hint="@ (юзернейм, уникально)" android:inputType="text" android:maxLines="1" android:maxLength="20"/>
+                <EditText android:id="@+id/etBio" style="@style/TsuyuInput"
+                    android:hint="О себе" android:inputType="textMultiLine" android:maxLines="3"/>
+                <EditText android:id="@+id/etEmail" style="@style/TsuyuInput"
+                    android:hint="@string/email" android:inputType="textEmailAddress" android:maxLines="1"/>
+                <EditText android:id="@+id/etPass" style="@style/TsuyuInput"
+                    android:hint="@string/password" android:inputType="textPassword" android:maxLines="1"/>
+
+                <TextView
+                    android:id="@+id/tvError"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textColor="@color/red"
+                    android:textSize="13sp"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+        </ScrollView>
+
+        <Button android:id="@+id/btnRegister" style="@style/TsuyuButton"
+            android:text="@string/register" android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvLogin"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/have_account"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="42dp" android:layout_height="42dp"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+</FrameLayout>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_black">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="6dp" android:paddingEnd="12dp"
+        android:layout_marginTop="25dp">
+
+        <FrameLayout
+            android:id="@+id/btnBack"
+            android:layout_width="40dp" android:layout_height="40dp"
+            android:background="@drawable/bg_header_btn"
+            android:layout_marginEnd="10dp">
+            <ImageView
+                android:layout_width="22dp" android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_back"
+                android:tint="@color/white"/>
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Мой профиль"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_unread"
+            android:paddingStart="16dp" android:paddingEnd="16dp"
+            android:paddingTop="7dp" android:paddingBottom="7dp"
+            android:text="Сохранить"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <FrameLayout
+                android:id="@+id/avatarPick"
+                android:layout_width="96dp" android:layout_height="96dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="24dp">
+                <View android:layout_width="96dp" android:layout_height="96dp"
+                    android:background="@drawable/bg_avatar_default"/>
+                <TextView
+                    android:id="@+id/tvLetter"
+                    android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="36sp"
+                    android:textStyle="bold"/>
+                <ImageView
+                    android:id="@+id/ivAvatar"
+                    android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/bg_avatar"
+                    android:visibility="gone"/>
+                <ImageView
+                    android:layout_width="30dp" android:layout_height="30dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/bg_circle_btn"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_camera"
+                    android:tint="@color/black"/>
+            </FrameLayout>
+
+            <TextView style="@style/FieldLabel" android:text="Имя"/>
+            <EditText android:id="@+id/etFirst" style="@style/TsuyuInput"
+                android:inputType="textPersonName" android:maxLines="1" android:maxLength="40"/>
+
+            <TextView style="@style/FieldLabel" android:text="Фамилия"/>
+            <EditText android:id="@+id/etLast" style="@style/TsuyuInput"
+                android:inputType="textPersonName" android:maxLines="1" android:maxLength="40"/>
+
+            <TextView style="@style/FieldLabel" android:text="@ (уникальный юзернейм)"/>
+            <EditText android:id="@+id/etUsername" style="@style/TsuyuInput"
+                android:inputType="text" android:maxLines="1" android:maxLength="20"/>
+
+            <TextView style="@style/FieldLabel" android:text="О себе (описание)"/>
+            <EditText android:id="@+id/etBio" style="@style/TsuyuInput"
+                android:inputType="textMultiLine" android:maxLines="4"/>
+
+            <TextView style="@style/FieldLabel" android:text="Email"/>
+            <EditText android:id="@+id/etEmail" style="@style/TsuyuInput"
+                android:inputType="textEmailAddress" android:maxLines="1"
+                android:textColor="@color/text_dim"
+                android:enabled="false"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

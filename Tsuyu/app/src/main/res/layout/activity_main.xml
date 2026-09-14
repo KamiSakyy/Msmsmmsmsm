@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg_black">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent" android:layout_height="56dp"
+            android:background="@color/surface"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp" android:paddingEnd="12dp"
+            android:layout_marginTop="25dp">
+
+            <FrameLayout
+                android:id="@+id/btnMenu"
+                android:layout_width="40dp" android:layout_height="40dp"
+                android:background="@drawable/bg_header_btn"
+                android:layout_marginEnd="10dp">
+                <ImageView
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_user"
+                    android:tint="@color/white"/>
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Tsuyu"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="0.04"/>
+                <TextView
+                    android:id="@+id/tvSubtitle"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Защищено E2EE"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/btnKeys"
+                android:layout_width="38dp" android:layout_height="38dp"
+                android:background="@drawable/bg_header_btn"
+                android:layout_marginStart="6dp">
+                <ImageView
+                    android:layout_width="20dp" android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_key"
+                    android:tint="@color/icon_gray"/>
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@color/surface"
+            android:paddingStart="12dp" android:paddingEnd="12dp"
+            android:paddingTop="8dp" android:paddingBottom="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:backgroundTint="@color/surface">
+            <View android:layout_width="0dp" android:layout_height="0dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/searchWrap"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@color/surface"
+            android:padding="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="18dp" android:layout_height="18dp"
+                android:src="@drawable/ic_search"
+                android:tint="@color/text_secondary"
+                android:layout_marginEnd="8dp"/>
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_search"
+                android:padding="10dp"
+                android:hint="@string/search_hint"
+                android:textColorHint="@color/text_dim"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:inputType="text"/>
+            <ImageView
+                android:id="@+id/btnClearSearch"
+                android:layout_width="30dp" android:layout_height="30dp"
+                android:layout_marginStart="8dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_close"
+                android:tint="@color/text_dim"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent" android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/tvSearchHeader"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:paddingStart="14dp" android:paddingTop="12dp" android:paddingBottom="6dp"
+                android:text="ПОИСК ПО ЮЗЕРНЕЙМУ"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.06"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Пока нет диалогов.\nНайдите собеседника по @."
+                android:textColor="@color/text_dim"
+                android:textSize="14sp"
+                android:gravity="center"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- Drawer -->
+    <View
+        android:id="@+id/drawerOverlay"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:background="@color/overlay"
+        android:alpha="0"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="invisible"/>
+
+    <LinearLayout
+        android:id="@+id/drawer"
+        android:layout_width="290dp" android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@drawable/bg_drawer"
+        android:orientation="vertical"
+        android:translationX="-320dp">
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_drawer_header"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <FrameLayout
+                android:id="@+id/drawerAvatarWrap"
+                android:layout_width="72dp" android:layout_height="72dp"
+                android:layout_marginBottom="12dp">
+                <View android:layout_width="72dp" android:layout_height="72dp"
+                    android:background="@drawable/bg_avatar_default"/>
+                <TextView
+                    android:id="@+id/tvDrawerLetter"
+                    android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="T"
+                    android:textColor="@color/white"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+                <ImageView
+                    android:id="@+id/ivDrawerAvatar"
+                    android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvDrawerName"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="..."
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvDrawerUsername"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/accent"
+                android:textSize="13sp"/>
+
+            <TextView
+                android:id="@+id/tvDrawerStatus"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:padding="6dp"
+                android:paddingStart="8dp"/>
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent" android:layout_height="0dp"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <LinearLayout android:id="@+id/drawerItemProfile" style="@style/DrawerItem">
+                    <ImageView style="@style/DrawerItemIcon" android:src="@drawable/ic_user"/>
+                    <TextView style="@style/DrawerItemText" android:text="Мой профиль"/>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/drawerItemSettings" style="@style/DrawerItem">
+                    <ImageView style="@style/DrawerItemIcon" android:src="@drawable/ic_settings"/>
+                    <TextView style="@style/DrawerItemText" android:text="Настройки"/>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/drawerItemKeys" style="@style/DrawerItem">
+                    <ImageView style="@style/DrawerItemIcon" android:src="@drawable/ic_key"/>
+                    <TextView style="@style/DrawerItemText" android:text="Ключи E2EE"/>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/drawerItemGhost" style="@style/DrawerItem">
+                    <ImageView style="@style/DrawerItemIcon" android:src="@drawable/ic_ghost"/>
+                    <TextView style="@style/DrawerItemText" android:text="Режим призрака"/>
+                    <CheckBox
+                        android:id="@+id/cbGhost"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:buttonTint="@color/green"
+                        android:clickable="false"
+                        android:focusable="false"/>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/drawerItemSound" style="@style/DrawerItem">
+                    <ImageView style="@style/DrawerItemIcon" android:src="@drawable/ic_sound"/>
+                    <TextView style="@style/DrawerItemText" android:text="Звук уведомлений"/>
+                    <CheckBox
+                        android:id="@+id/cbSound"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:buttonTint="@color/green"
+                        android:clickable="false"
+                        android:focusable="false"/>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/drawerItemLogout" style="@style/DrawerItem">
+                    <ImageView style="@style/DrawerItemIcon" android:src="@drawable/ic_logout" android:tint="@color/red"/>
+                    <TextView style="@style/DrawerItemText" android:text="Выйти" android:textColor="@color/red"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:text="Tsuyu 1.0 • Double Ratchet E2EE"
+                    android:textColor="@color/text_dim"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</FrameLayout>

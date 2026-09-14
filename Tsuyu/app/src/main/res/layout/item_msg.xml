@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:paddingStart="12dp" android:paddingEnd="12dp"
+    android:layout_marginTop="2dp">
+
+    <LinearLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom">
+
+        <LinearLayout
+            android:id="@+id/bubble"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginEnd="28dp"
+            android:background="@drawable/bg_bubble_in"
+            android:orientation="vertical"
+            android:paddingTop="7dp" android:paddingBottom="5dp"
+            android:paddingStart="11dp" android:paddingEnd="11dp">
+
+            <LinearLayout
+                android:id="@+id/replyQuote"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_reply_quote"
+                android:paddingStart="8dp" android:paddingEnd="8dp"
+                android:paddingTop="5dp" android:paddingBottom="5dp"
+                android:layout_marginBottom="6dp"
+                android:visibility="gone">
+
+                <View
+                    android:id="@+id/replyQuoteBar"
+                    android:layout_width="3dp" android:layout_height="28dp"
+                    android:background="@color/text_secondary"/>
+
+                <LinearLayout
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="7dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/tvReplyName"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:maxLines="1"/>
+                    <TextView
+                        android:id="@+id/tvReplyText"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textColor="#dddddd"
+                        android:textSize="12sp"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvAuthor"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/accent"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="2dp"
+                android:visibility="gone"/>
+
+            <FrameLayout
+                android:id="@+id/mediaContainer"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:minWidth="120dp"/>
+
+            <TextView
+                android:id="@+id/tvText"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.2"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/metaRow"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end|center_vertical"
+                android:layout_marginTop="3dp">
+
+                <TextView
+                    android:id="@+id/tvEdited"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="изменено"
+                    android:textColor="@color/text_dim"
+                    android:textSize="10sp"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tvMsgTime"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textColor="#888888"
+                    android:textSize="10sp"/>
+
+                <ImageView
+                    android:id="@+id/ivStatus"
+                    android:layout_width="14dp" android:layout_height="14dp"
+                    android:layout_marginStart="3dp"
+                    android:src="@drawable/ic_check"
+                    android:tint="#8e8e93"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnMore"
+            android:layout_width="22dp" android:layout_height="22dp"
+            android:gravity="center"
+            android:text="•••"
+            android:textColor="@color/text_dim"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_header_btn"/>
+    </LinearLayout>
+
+    <!-- Reactions overlay -->
+    <LinearLayout
+        android:id="@+id/reactionsRow"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_badge_e2e"
+        android:paddingStart="7dp" android:paddingEnd="7dp"
+        android:paddingTop="2dp" android:paddingBottom="2dp"
+        android:visibility="gone"/>
+</FrameLayout>

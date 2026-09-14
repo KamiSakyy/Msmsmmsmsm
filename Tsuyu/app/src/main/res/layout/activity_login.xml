@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg_black">
+
+    <LinearLayout
+        android:id="@+id/loginPanel"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Tsuyu"
+            android:textColor="@color/white"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.06"
+            android:fontFamily="sans-serif-black"/>
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_e2e"
+            android:paddingStart="12dp" android:paddingEnd="12dp"
+            android:paddingTop="6dp" android:paddingBottom="6dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/e2e_badge"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/login_sub"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:gravity="center"/>
+
+        <EditText
+            android:id="@+id/etEmail"
+            style="@style/TsuyuInput"
+            android:layout_marginTop="24dp"
+            android:hint="@string/email"
+            android:inputType="textEmailAddress"
+            android:maxLength="100"
+            android:maxLines="1"/>
+
+        <EditText
+            android:id="@+id/etPass"
+            style="@style/TsuyuInput"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:maxLength="100"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/red"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btnLogin"
+            style="@style/TsuyuButton"
+            android:text="@string/login"
+            android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/no_account"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="42dp" android:layout_height="42dp"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+</FrameLayout>
