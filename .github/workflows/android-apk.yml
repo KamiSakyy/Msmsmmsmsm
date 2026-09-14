@@ -50,7 +50,30 @@ jobs:
           fi
           SM=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
           yes | $SM --licenses > /dev/null 2>&1 || true
-          good_jar() { [ -f "$1" ] && [ "$(unzip -l "$1" 2>/dev/null | grep -c "hardware/camera2/CameraCaptureRequest.class")" -gt 0 ]; }
+                    cat > /tmp/JarCheck.java <<'JEOF'
+import java.util.jar.JarFile;
+public class JarCheck {
+  public static void main(String[] a) throws Exception {
+    try (JarFile jf = new JarFile(a[0])) {
+      boolean has = jf.getJarEntry("android/hardware/camera2/CameraCaptureRequest.class") != null;
+      System.out.println(has ? "1" : "0");
+      if (a.length > 1 && a[1].equals("dump")) {
+        int n = 0;
+        var en = jf.entries();
+        while (en.hasMoreElements() && n < 12) {
+          var e = en.nextElement();
+          if (e.getName().contains("camera2") && e.getName().endsWith(".class")) {
+            System.out.println("ENTRY " + e.getName() + " size=" + e.getSize());
+            n++;
+          }
+        }
+      }
+    } catch (Throwable t) { System.out.println("ERR " + t); }
+  }
+}
+JEOF
+          javac -d /tmp /tmp/JarCheck.java
+          good_jar() { [ -f "$1" ] && [ "$(java -cp /tmp JarCheck "$1" 2>/dev/null)" = "1" ]; }
           PICK=""; PICKSDK=""; SRC=""
           CANDS=""
           for d in "$ANDROID_HOME"/platforms/android-*; do
@@ -107,7 +130,11 @@ jobs:
             log "FATAL: no usable android.jar"
             for d in "$ANDROID_HOME"/platforms/android-3[0-9]; do
               [ -f "$d/android.jar" ] || continue
-              log "  jar $d size=$(stat -c%s "$d/android.jar") entries=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c class) has_cam2=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c camera2) has_app=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c 'android/app/') has_view=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c 'android/view/') first=$(unzip -l "$d/android.jar" 2>/dev/null | awk 'NR>3{print $4; exit}')"
+              if [ "$d" = "$ANDROID_HOME/platforms/android-34" ]; then
+                log "  android-34 camera2 entries (java JarFile):"
+                java -cp /tmp JarCheck "$d/android.jar" dump 2>&1 | sed 's/^/    /' | tee -a "$SUM"
+              fi
+              log "  jar $d size=$(stat -c%s "$d/android.jar") javaHasCam2=$(java -cp /tmp JarCheck "$d/android.jar" 2>/dev/null)""
             done
             exit 1
           fi
