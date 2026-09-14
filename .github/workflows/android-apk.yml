@@ -33,8 +33,8 @@ jobs:
         run: |
           set +e
           set -o pipefail
-          mkdir -p ci
-          SUM=ci/sdk-summary.txt
+          mkdir -p "$GITHUB_WORKSPACE/ci"
+          SUM="$GITHUB_WORKSPACE/ci/sdk-summary.txt"
           : > "$SUM"
           log() { echo "$@" | tee -a "$SUM"; }
           export ANDROID_HOME=$ANDROID_SDK_ROOT
@@ -80,7 +80,11 @@ jobs:
           if [ -z "$PICK" ]; then
             for spec in "14-robolectric-10818077:34" "15-robolectric-12650502:35"; do
               V=${spec%%:*}; SDKV=${spec##*:}
-              CODE=$(curl -sSL -w "%{http_code}" -o /tmp/android-all.jar "https://repo1.maven.org/maven2/org/robolectric/android-all/$V/android-all-$V.jar")
+              CODE=""
+              for MIRROR in "https://repo1.maven.org/maven2" "https://maven-central.storage-download.googleapis.com/maven2"; do
+                CODE=$(curl -sSL --http1.1 --max-time 300 -w "%{http_code}" -o /tmp/android-all.jar "$MIRROR/org/robolectric/android-all/$V/android-all-$V.jar")
+                [ "$CODE" = "200" ] && break
+              done
               SZ=$(stat -c%s /tmp/android-all.jar 2>/dev/null || echo 0)
               if [ "$CODE" = "200" ] && good_jar /tmp/android-all.jar; then
                 mkdir -p "$ANDROID_HOME/platforms/android-$SDKV"
