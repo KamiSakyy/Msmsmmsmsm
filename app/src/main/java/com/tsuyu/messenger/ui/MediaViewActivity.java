@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.tsuyu.messenger.R;
 import com.tsuyu.messenger.crypto.CryptoUtil;
 import com.tsuyu.messenger.data.Models;
+import com.tsuyu.messenger.data.Prefs;
 import com.tsuyu.messenger.util.Fmt;
 import com.tsuyu.messenger.util.Ui;
 
@@ -37,6 +39,11 @@ public class MediaViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Prefs prefs = new Prefs(this);
+        if (prefs.secureScreen()) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE);
+        }
         setContentView(R.layout.activity_media_view);
 
         int index = getIntent().getIntExtra("index", 0);

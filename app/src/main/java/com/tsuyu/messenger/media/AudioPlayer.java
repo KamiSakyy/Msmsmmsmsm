@@ -26,6 +26,8 @@ public class AudioPlayer {
     private Callback callback;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
+    private float currentSpeed = 1.0f;
+
     public static synchronized AudioPlayer get() {
         if (instance == null) instance = new AudioPlayer();
         return instance;
@@ -33,8 +35,21 @@ public class AudioPlayer {
 
     public String currentKey() { return currentKey; }
 
+    public float getSpeed() { return currentSpeed; }
+
+    public void setSpeed(float speed) {
+        this.currentSpeed = speed;
+        if (player != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            try {
+                boolean playing = player.isPlaying();
+                player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
+                if (!playing) player.pause();
+            } catch (Exception ignored) { }
+        }
+    }
+
     public boolean isPlaying(String key) {
-        return key.equals(currentKey) && player != null && player.isPlaying();
+        return key != null && key.equals(currentKey) && player != null && player.isPlaying();
     }
 
     /** Plays base64 audio, caching it to a temp file. Toggles if the same key is tapped. */
@@ -64,6 +79,11 @@ public class AudioPlayer {
                     .setUsage(AudioAttributes.USAGE_MEDIA).build());
             player.setDataSource(f.getAbsolutePath());
             player.prepare();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M && currentSpeed != 1.0f) {
+                try {
+                    player.setPlaybackParams(player.getPlaybackParams().setSpeed(currentSpeed));
+                } catch (Exception ignored) { }
+            }
             player.start();
             currentKey = key;
             callback = cb;

@@ -96,10 +96,14 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefs = new Prefs(this);
+        if (prefs.secureScreen()) {
+            getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE,
+                    android.view.WindowManager.LayoutParams.FLAG_SECURE);
+        }
         setContentView(R.layout.activity_chat);
 
         repo = Repo.get(this);
-        prefs = new Prefs(this);
         me = repo.uid();
         peerUid = getIntent().getStringExtra("peerUid");
         if (me == null || peerUid == null) { finish(); return; }
@@ -165,6 +169,42 @@ public class ChatActivity extends AppCompatActivity implements MessageAdapter.Ca
                 scrollFab.setVisibility(atBottom ? View.GONE : View.VISIBLE);
             }
         });
+
+        androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback swipeCallback =
+                new androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(0,
+                        androidx.recyclerview.widget.ItemTouchHelper.LEFT | androidx.recyclerview.widget.ItemTouchHelper.RIGHT) {
+                    @Override
+                    public boolean onMove(@NonNull RecyclerView recyclerView,
+                                          @NonNull RecyclerView.ViewHolder viewHolder,
+                                          @NonNull RecyclerView.ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                        int pos = viewHolder.getAdapterPosition();
+                        if (pos >= 0 && pos < adapter.items().size()) {
+                            Models.Message m = adapter.items().get(pos);
+                            if (m != null && !m.deleted) {
+                                viewHolder.itemView.performHapticFeedback(
+                                        android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+                                setReply(m);
+                            }
+                        }
+                        adapter.notifyItemChanged(pos);
+                    }
+
+                    @Override
+                    public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
+                        return 0.25f;
+                    }
+
+                    @Override
+                    public float getSwipeEscapeVelocity(float defaultValue) {
+                        return defaultValue * 2;
+                    }
+                };
+        new androidx.recyclerview.widget.ItemTouchHelper(swipeCallback).attachToRecyclerView(list);
     }
 
     // ------------------------------------------------------------------

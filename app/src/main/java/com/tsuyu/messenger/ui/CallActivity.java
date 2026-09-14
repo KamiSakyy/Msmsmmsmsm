@@ -83,7 +83,22 @@ public class CallActivity extends AppCompatActivity {
         incomingControls = findViewById(R.id.incomingControls);
         infoPanel = findViewById(R.id.infoPanel);
 
-        btnFlip.setVisibility(video ? View.VISIBLE : View.GONE);
+        if (video) {
+            btnFlip.setVisibility(View.VISIBLE);
+            btnFlip.setImageResource(R.drawable.ic_switch_camera);
+            btnFlip.setOnClickListener(v -> { if (engine != null) engine.switchCamera(); });
+        } else {
+            btnFlip.setVisibility(View.VISIBLE);
+            btnFlip.setImageResource(R.drawable.ic_volume_up);
+            final boolean[] speakerOn = {false};
+            btnFlip.setAlpha(0.5f);
+            btnFlip.setOnClickListener(v -> {
+                speakerOn[0] = !speakerOn[0];
+                AudioManager am = (AudioManager) getSystemService(AUDIO_SERVICE);
+                if (am != null) am.setSpeakerphoneOn(speakerOn[0]);
+                btnFlip.setAlpha(speakerOn[0] ? 1.0f : 0.5f);
+            });
+        }
 
         findViewById(R.id.btnHangup).setOnClickListener(v -> hangup());
         findViewById(R.id.btnDecline).setOnClickListener(v -> hangup());
@@ -93,7 +108,6 @@ public class CallActivity extends AppCompatActivity {
             if (engine != null) engine.setMicEnabled(micOn);
             btnMute.setImageResource(micOn ? R.drawable.ic_mic : R.drawable.ic_mic_off);
         });
-        btnFlip.setOnClickListener(v -> { if (engine != null) engine.switchCamera(); });
 
         loadPeer();
 

@@ -112,7 +112,7 @@
                 <!-- voice player -->
                 <LinearLayout
                     android:id="@+id/voiceWrap"
-                    android:layout_width="230dp"
+                    android:layout_width="240dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
@@ -140,13 +140,33 @@
                             android:layout_width="match_parent"
                             android:layout_height="26dp" />
 
-                        <TextView
-                            android:id="@+id/voiceTime"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="3dp"
-                            android:textColor="#AAAAAA"
-                            android:textSize="10sp" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/voiceTime"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textColor="#AAAAAA"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:id="@+id/voiceSpeed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1X"
+                                android:textColor="#FFFFFF"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:background="@drawable/bg_chip"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
 

@@ -70,6 +70,10 @@ public class Prefs {
     public boolean ghost() { return p.getBoolean("ghost", false); }
     public void setGhost(boolean v) { p.edit().putBoolean("ghost", v).apply(); }
 
+    // ---- screen security / screenshot protection ----
+    public boolean secureScreen() { return p.getBoolean("secure_screen", false); }
+    public void setSecureScreen(boolean v) { p.edit().putBoolean("secure_screen", v).apply(); }
+
     // ---- session ----
     public String uid() { return p.getString("uid", null); }
     public void setUid(String v) { p.edit().putString("uid", v).apply(); }

@@ -2,7 +2,9 @@ package com.tsuyu.messenger.ui;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.tsuyu.messenger.R;
 import com.tsuyu.messenger.crypto.ProfileCrypto;
 import com.tsuyu.messenger.data.Models;
+import com.tsuyu.messenger.data.Prefs;
 import com.tsuyu.messenger.data.Repo;
 import com.tsuyu.messenger.media.MediaCodecUtil;
 import com.tsuyu.messenger.util.Ui;
@@ -30,9 +33,11 @@ public class PrivacyActivity extends AppCompatActivity {
     private static final String[] LABELS = {"Все", "Только контакты", "Только по @", "Никто"};
 
     private Repo repo;
+    private Prefs prefs;
     private String me;
     private TextView valWrite, valLastSeen, valAvatar, valBio;
     private ImageView publicPhoto;
+    private Switch swSecureScreen;
     private ActivityResultLauncher<PickVisualMediaRequest> picker;
 
     @Override
@@ -41,6 +46,7 @@ public class PrivacyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_privacy);
 
         repo = Repo.get(this);
+        prefs = new Prefs(this);
         me = repo.uid();
         if (me == null) { finish(); return; }
 
@@ -52,6 +58,22 @@ public class PrivacyActivity extends AppCompatActivity {
         valAvatar = findViewById(R.id.valAvatar);
         valBio = findViewById(R.id.valBio);
         publicPhoto = findViewById(R.id.publicPhoto);
+        swSecureScreen = findViewById(R.id.swSecureScreen);
+
+        if (swSecureScreen != null) {
+            swSecureScreen.setChecked(prefs.secureScreen());
+            swSecureScreen.setOnCheckedChangeListener((b, checked) -> {
+                prefs.setSecureScreen(checked);
+                if (checked) {
+                    getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                            WindowManager.LayoutParams.FLAG_SECURE);
+                    Toast.makeText(this, "Защита экрана включена", Toast.LENGTH_SHORT).show();
+                } else {
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+                    Toast.makeText(this, "Защита экрана выключена", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         findViewById(R.id.rowWrite).setOnClickListener(v ->
                 choose("Кто может писать мне", "pWrite", valWrite));

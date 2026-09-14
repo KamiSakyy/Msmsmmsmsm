@@ -62,10 +62,9 @@ public final class Ui {
         return out;
     }
 
-    /** Deterministic colour + initial placeholder, like Telegram. */
+    /** Deterministic colour + initial placeholder matching dark OLED theme. */
     public static void placeholderAvatar(ImageView iv, String seed, String name) {
-        int[] palette = {0xFF0A84FF, 0xFF34C759, 0xFFFF9500, 0xFFFF3B30,
-                0xFFAF52DE, 0xFF5AC8FA, 0xFFFFCC00};
+        int[] palette = {0xFF2C2C2E, 0xFF3A3A3C, 0xFF48484A, 0xFF636366, 0xFF8E8E93, 0xFF1C1C1E};
         int color = palette[Math.abs((seed == null ? "x" : seed).hashCode()) % palette.length];
         int size = 160;
         Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);

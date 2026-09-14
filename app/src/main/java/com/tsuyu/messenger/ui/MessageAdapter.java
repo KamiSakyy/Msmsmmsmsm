@@ -258,6 +258,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.VH> {
         h.voiceWave.setColors(Color.WHITE, Color.parseColor("#4DFFFFFF"));
         h.voiceTime.setText(Fmt.duration(a.durationMs));
 
+        float curSpd = AudioPlayer.get().getSpeed();
+        if (h.voiceSpeed != null) {
+            h.voiceSpeed.setText(curSpd == 1.0f ? "1X" : (curSpd == 1.5f ? "1.5X" : "2X"));
+            h.voiceSpeed.setOnClickListener(v -> {
+                Ui.tapScale(v);
+                float s = AudioPlayer.get().getSpeed();
+                float nextSpd;
+                if (s <= 1.05f) nextSpd = 1.5f;
+                else if (s <= 1.55f) nextSpd = 2.0f;
+                else nextSpd = 1.0f;
+                AudioPlayer.get().setSpeed(nextSpd);
+                h.voiceSpeed.setText(nextSpd == 1.0f ? "1X" : (nextSpd == 1.5f ? "1.5X" : "2X"));
+            });
+        }
+
         String key = "v_" + m.id;
         boolean playing = AudioPlayer.get().isPlaying(key);
         h.voicePlay.setImageResource(playing ? R.drawable.ic_pause : R.drawable.ic_play);
@@ -291,7 +306,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.VH> {
         h.musicArtist.setText(a.artist == null ? "Неизвестный исполнитель" : a.artist);
         h.musicWave.setFlat(true);   // music = always a straight bar
         h.musicWave.setBars(new int[40]);
-        h.musicWave.setColors(Color.parseColor("#0A84FF"), Color.parseColor("#3A3A3C"));
+        h.musicWave.setColors(Color.WHITE, Color.parseColor("#3A3A3C"));
         h.musicTime.setText(Fmt.duration(a.durationMs));
 
         String key = "a_" + m.id;
@@ -344,6 +359,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.VH> {
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
                 long now = System.currentTimeMillis();
                 if (now - lastTap[0] < 300) {
+                    view.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
                     cb.onDoubleTapHeart(m);
                     Ui.tapScale(view);
                     lastTap[0] = 0;
@@ -359,7 +375,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.VH> {
 
     static class VH extends RecyclerView.ViewHolder {
         TextView dateSeparator, messageText, messageTime, editedMark, forwarded;
-        TextView replyQuoteName, replyQuoteText, voiceTime, musicTitle, musicArtist, musicTime;
+        TextView replyQuoteName, replyQuoteText, voiceTime, voiceSpeed, musicTitle, musicArtist, musicTime;
         LinearLayout rowWrap, bubbleColumn, bubble, replyQuote, voiceWrap, musicWrap, heartsRow;
         FrameLayout mediaWrap, circleWrap, heartAvatars;
         CircleVideoView circleVideo;
@@ -385,6 +401,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.VH> {
             voicePlay = v.findViewById(R.id.voicePlay);
             voiceWave = v.findViewById(R.id.voiceWave);
             voiceTime = v.findViewById(R.id.voiceTime);
+            voiceSpeed = v.findViewById(R.id.voiceSpeed);
             musicWrap = v.findViewById(R.id.musicWrap);
             musicPlay = v.findViewById(R.id.musicPlay);
             musicWave = v.findViewById(R.id.musicWave);
