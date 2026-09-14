@@ -303,18 +303,18 @@
                 <TextView style="@style/SectionTitle" android:text="Приватность и режимы" />
 
                 <LinearLayout style="@style/Card">
-                    <!-- Режим призрака -->
+                    <!-- Режим невидимки -->
                     <LinearLayout
                         android:id="@+id/drawerRowGhost"
                         style="@style/SettingRow">
-                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_ghost" app:tint="@color/white" />
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_shield" app:tint="@color/white" />
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
-                            <TextView style="@style/TsuyuSettingLabel" android:text="Режим призрака" />
-                            <TextView style="@style/PrivacyValue" android:text="Невидимка • скрыть онлайн" />
+                            <TextView style="@style/TsuyuSettingLabel" android:text="Режим невидимки" />
+                            <TextView style="@style/PrivacyValue" android:text="Скрыть статус в сети и активность" />
                         </LinearLayout>
                         <Switch
                             android:id="@+id/drawerSwitchGhost"

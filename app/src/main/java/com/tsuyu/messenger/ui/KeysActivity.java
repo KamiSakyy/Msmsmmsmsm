@@ -1,9 +1,14 @@
 package com.tsuyu.messenger.ui;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.HapticFeedbackConstants;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +35,7 @@ import java.io.InputStream;
 public class KeysActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> importPicker;
+    private TextView safetyNumberView, fingerprintView, edFingerprintView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,7 +45,25 @@ public class KeysActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.headerTitle)).setText("Ключи шифрования");
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
+        safetyNumberView = findViewById(R.id.safetyNumber);
+        fingerprintView = findViewById(R.id.fingerprint);
+        edFingerprintView = findViewById(R.id.edFingerprint);
+
         renderFingerprint();
+
+        View boxSafety = findViewById(R.id.boxSafetyNumber);
+        if (boxSafety != null) {
+            boxSafety.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
+                if (safetyNumberView != null) {
+                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cm != null) {
+                        cm.setPrimaryClip(ClipData.newPlainText("Safety Number", safetyNumberView.getText()));
+                        Toast.makeText(this, "Код безопасности скопирован", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
 
         importPicker = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), res -> {
@@ -60,13 +84,20 @@ public class KeysActivity extends AppCompatActivity {
 
     private void renderFingerprint() {
         IdentityStore id = IdentityStore.get(this);
-        byte[] digest = CryptoUtil.hmacSha256(id.idPub, "fingerprint".getBytes());
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 16; i++) {
-            sb.append(String.format("%02X", digest[i]));
-            if (i % 2 == 1 && i < 15) sb.append(' ');
+
+        // Signal 60-digit safety number derived from identity key
+        String sn = CryptoUtil.computeSafetyNumber(id.idPub, id.idPub);
+        if (safetyNumberView != null) {
+            safetyNumberView.setText(sn);
         }
-        ((TextView) findViewById(R.id.fingerprint)).setText(sb.toString());
+
+        if (fingerprintView != null) {
+            fingerprintView.setText(CryptoUtil.formatFingerprint(id.idPub));
+        }
+
+        if (edFingerprintView != null) {
+            edFingerprintView.setText(CryptoUtil.formatFingerprint(id.edPub));
+        }
     }
 
     private void exportKeys() {

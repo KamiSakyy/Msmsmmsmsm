@@ -155,6 +155,32 @@ public class CryptoTest {
         assertEquals("after reload", str(DoubleRatchet.decrypt(alice, reply)));
     }
 
+    @Test
+    public void signalSafetyNumbersMatchSymmetrically() {
+        byte[][] alice = CryptoUtil.generateX25519();
+        byte[][] bob = CryptoUtil.generateX25519();
+
+        String snAlice = CryptoUtil.computeSafetyNumber(alice[1], bob[1]);
+        String snBob = CryptoUtil.computeSafetyNumber(bob[1], alice[1]);
+
+        assertEquals(snAlice, snBob);
+        assertEquals(71, snAlice.length()); // 12 blocks * 5 digits + 11 spaces = 71 chars
+        String[] parts = snAlice.split(" ");
+        assertEquals(12, parts.length);
+        for (String p : parts) {
+            assertEquals(5, p.length());
+            assertTrue(p.matches("\\d{5}"));
+        }
+    }
+
+    @Test
+    public void fingerprintFormatting() {
+        byte[] key = CryptoUtil.random(32);
+        String fp = CryptoUtil.formatFingerprint(key);
+        assertNotNull(fp);
+        assertTrue(fp.length() > 20);
+    }
+
     /** Alice sends first; Bob receives it so both sides hold live chains. */
     private Object[] establish() throws Exception {
         byte[][] aliceId = CryptoUtil.generateX25519();

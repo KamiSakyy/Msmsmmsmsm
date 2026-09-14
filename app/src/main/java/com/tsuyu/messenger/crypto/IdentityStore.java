@@ -101,4 +101,22 @@ public class IdentityStore {
                 : CryptoUtil.sign(edPriv, spkPub);
         persist();
     }
+
+    // ---- Contact identity verification & Safety Numbers ----
+
+    public boolean isVerified(String peerUid) {
+        return prefs.getBoolean("ver_" + peerUid, false);
+    }
+
+    public void setVerified(String peerUid, boolean v) {
+        prefs.edit().putBoolean("ver_" + peerUid, v).apply();
+    }
+
+    public String getSavedPeerIk(String peerUid) {
+        return prefs.getString("ik_" + peerUid, null);
+    }
+
+    public void savePeerIk(String peerUid, String ik) {
+        prefs.edit().putString("ik_" + peerUid, ik).apply();
+    }
 }

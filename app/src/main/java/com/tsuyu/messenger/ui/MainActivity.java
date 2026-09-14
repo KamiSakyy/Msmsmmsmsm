@@ -177,8 +177,8 @@ public class MainActivity extends AppCompatActivity {
                 prefs.setGhost(checked);
                 updateGhostIcon();
                 repo.goOnline();
-                Toast.makeText(this, checked ? "👻 Режим призрака включен (невидимка)"
-                        : "Режим призрака выключен", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, checked ? "Режим невидимки включен"
+                        : "Режим невидимки выключен", Toast.LENGTH_SHORT).show();
             });
         }
 

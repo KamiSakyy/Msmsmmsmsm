@@ -88,6 +88,16 @@ public class SessionManager {
         RatchetState state = load(peerUid);
         String ephB64 = null;
 
+        String oldIk = identity.getSavedPeerIk(peerUid);
+        if (peerIk != null) {
+            if (oldIk != null && !oldIk.equals(peerIk)) {
+                // Peer identity key changed! Reset state to re-initiate X3DH
+                resetSession(peerUid);
+                state = null;
+            }
+            identity.savePeerIk(peerUid, peerIk);
+        }
+
         if (state == null) {
             byte[] ikBytes = CryptoUtil.unb64(peerIk);
             byte[] spkBytes = CryptoUtil.unb64(peerSpk);
