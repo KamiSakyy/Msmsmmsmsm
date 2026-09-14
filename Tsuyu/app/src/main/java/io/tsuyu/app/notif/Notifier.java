@@ -12,7 +12,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.widget.RemoteInput;
+import android.app.RemoteInput;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -82,7 +82,7 @@ public class Notifier {
             d.mkdirs();
             String name = "custom_" + System.currentTimeMillis() + ".mp3";
             File f = new File(d, name);
-            java.io.FileOutputStream fos = new FileOutputStream(f);
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
             fos.write(mp3);
             fos.close();
             TsuyuApp.get().prefs().edit().putString("custom_sound", name).apply();

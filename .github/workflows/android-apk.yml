@@ -52,18 +52,8 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            Tsuyu/app/libs
           key: gradle-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
 
-      - name: Download WebRTC M123 AAR
-        if: hashFiles('Tsuyu/app/libs/libwebrtc-123.0.0.aar') == ''
-        shell: bash
-        run: |
-          set -e
-          mkdir -p Tsuyu/app/libs
-          curl -sSL -o Tsuyu/app/libs/libwebrtc-123.0.0.aar \
-            https://github.com/rno/WebRTC/releases/download/123.0.0/libwebrtc-123.0.0.aar
-          echo "61d40593c13a2e1bb473a75ff258b967faf2672635ae4b11772642b66269ecce  Tsuyu/app/libs/libwebrtc-123.0.0.aar" | sha256sum -c -
 
       - name: Install Gradle 8.7
         shell: bash

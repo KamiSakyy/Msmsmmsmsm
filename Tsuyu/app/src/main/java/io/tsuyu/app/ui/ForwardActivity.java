@@ -59,7 +59,7 @@ public class ForwardActivity extends AppCompatActivity {
             TextView un = h.itemView.findViewById(R.id.tvUsername);
             TextView sub = h.itemView.findViewById(R.id.tvStatus);
             View dot = h.itemView.findViewById(R.id.dot);
-            View bgView = ((ViewGroup) h.itemView).getChildAt(0).getChildAt(0);
+            View bgView = ((ViewGroup) h.itemView.getChildAt(0)).getChildAt(0);
             TextView letterV = h.itemView.findViewById(R.id.tvLetter);
             ImageView ivV = h.itemView.findViewById(R.id.ivAvatar);
             Ui.setAvatar(ivV, bgView, letterV, it.u);

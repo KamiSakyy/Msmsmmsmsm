@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements BgService.ChatLis
                 TextView status = v.findViewById(R.id.tvStatus);
                 ImageView iv = v.findViewById(R.id.ivAvatar);
                 TextView letter = v.findViewById(R.id.tvLetter);
-                View bg = ((ViewGroup) v).getChildAt(0).getChildAt(0);
+                View bg = ((ViewGroup) v.getChildAt(0)).getChildAt(0);
                 name.setText(u.displayName());
                 username.setText(u.username != null ? "@" + u.username : "");
                 status.setText(u.online ? "в сети" : "");

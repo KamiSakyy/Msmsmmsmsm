@@ -10,7 +10,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.util.Base64;
 
-import androidx.exifinterface.media.ExifInterface;
+import android.media.ExifInterface;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

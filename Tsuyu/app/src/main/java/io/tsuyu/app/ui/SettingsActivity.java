@@ -129,7 +129,7 @@ public class SettingsActivity extends AppCompatActivity {
                 d.mkdirs();
                 File f = new File(d, name);
                 java.io.InputStream is = getContentResolver().openInputStream(data.getData());
-                java.io.FileOutputStream fos = new FileOutputStream(f);
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
                 byte[] buf = new byte[16384];
                 int n;
                 while ((n = is.read(buf)) > 0) fos.write(buf, 0, n);
@@ -148,7 +148,7 @@ public class SettingsActivity extends AppCompatActivity {
                 String sname = "custom_sound_" + System.currentTimeMillis() + ".mp3";
                 File f = new File(d, sname);
                 java.io.InputStream is = getContentResolver().openInputStream(data.getData());
-                java.io.FileOutputStream fos = new FileOutputStream(f);
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
                 byte[] buf = new byte[16384];
                 int n;
                 while ((n = is.read(buf)) > 0) fos.write(buf, 0, n);
