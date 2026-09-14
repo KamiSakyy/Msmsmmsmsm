@@ -1,7 +1,0 @@
-> Task :app:mergeReleaseResources FAILED
-FAILURE: Build failed with an exception.
-Execution failed for task ':app:mergeReleaseResources'.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:mergeReleaseResources'.
-Caused by: com.android.build.gradle.tasks.ResourceException: [color/ic_launcher_background] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/values/ic_launcher_background.xml	[color/ic_launcher_background] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/values/colors.xml: Error: Duplicate resources
-Caused by: [color/ic_launcher_background] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/values/ic_launcher_background.xml	[color/ic_launcher_background] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/values/colors.xml: Error: Duplicate resources
-BUILD FAILED in 53s
