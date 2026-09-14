@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <include layout="@layout/part_header" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView style="@style/SectionTitle" android:text="Шрифт" />
+
+            <LinearLayout style="@style/Card">
+                <LinearLayout android:id="@+id/rowFont" style="@style/SettingRow">
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView style="@style/TsuyuSettingLabel" android:text="Свой шрифт" />
+                        <TextView android:id="@+id/fontValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                    <TextView android:id="@+id/btnResetFont"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Сброс"
+                        android:textColor="@color/accent"
+                        android:textSize="13sp"
+                        android:padding="6dp" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/SettingRow" android:orientation="vertical"
+                    android:gravity="start">
+                    <TextView android:id="@+id/sizeLabel"
+                        style="@style/TsuyuSettingLabel" android:text="Размер текста" />
+                    <SeekBar android:id="@+id/sizeSeek"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:min="10"
+                        android:max="26"
+                        android:progressTint="@color/accent"
+                        android:thumbTint="@color/white" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/SettingRow">
+                    <TextView style="@style/TsuyuSettingLabel" android:text="Жирный"
+                        android:layout_weight="1" android:layout_width="0dp" />
+                    <Switch android:id="@+id/swBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/SettingRow">
+                    <TextView style="@style/TsuyuSettingLabel" android:text="Наклонный"
+                        android:layout_weight="1" android:layout_width="0dp" />
+                    <Switch android:id="@+id/swItalic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView style="@style/SectionTitle" android:text="Предпросмотр" />
+
+            <LinearLayout style="@style/Card">
+                <TextView android:id="@+id/preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:text="Мяу! Так будет выглядеть ваш текст в чате."
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+            <TextView style="@style/SectionTitle" android:text="Свои статусы" />
+
+            <LinearLayout style="@style/Card">
+                <LinearLayout style="@style/SettingRow" android:orientation="vertical"
+                    android:gravity="start">
+                    <TextView style="@style/TsuyuSettingLabel" android:text="Вместо «печатает»" />
+                    <EditText android:id="@+id/inTyping" style="@style/TsuyuInput"
+                        android:hint="печатает" android:layout_marginTop="6dp"
+                        android:layout_marginBottom="0dp" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/SettingRow" android:orientation="vertical"
+                    android:gravity="start">
+                    <TextView style="@style/TsuyuSettingLabel" android:text="Вместо «в сети»" />
+                    <EditText android:id="@+id/inOnline" style="@style/TsuyuInput"
+                        android:hint="в сети" android:layout_marginTop="6dp"
+                        android:layout_marginBottom="0dp" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/SettingRow" android:orientation="vertical"
+                    android:gravity="start">
+                    <TextView style="@style/TsuyuSettingLabel" android:text="Вместо «была в сети»" />
+                    <EditText android:id="@+id/inLastSeen" style="@style/TsuyuInput"
+                        android:hint="была в сети" android:layout_marginTop="6dp"
+                        android:layout_marginBottom="0dp" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/SettingRow" android:orientation="vertical"
+                    android:gravity="start">
+                    <TextView style="@style/TsuyuSettingLabel" android:text="Вместо «Сообщение»" />
+                    <EditText android:id="@+id/inMessage" style="@style/TsuyuInput"
+                        android:hint="Сообщение" android:layout_marginTop="6dp"
+                        android:layout_marginBottom="0dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button android:id="@+id/btnSave" style="@style/TsuyuButton"
+                android:layout_marginTop="16dp" android:text="Сохранить" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

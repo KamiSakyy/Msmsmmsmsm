@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "471541334599",
+    "firebase_url": "https://meow-874ce-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "meow-874ce",
+    "storage_bucket": "meow-874ce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:471541334599:android:567af3e7dbe70a37572762",
+        "android_client_info": {
+          "package_name": "com.tsuyu.messenger"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm0mIvHVznIeF2PoFk6dtdaiT5r877wyA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

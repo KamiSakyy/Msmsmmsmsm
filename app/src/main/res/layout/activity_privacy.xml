@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <include layout="@layout/part_header" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView style="@style/SectionTitle" android:text="Кто может" />
+
+            <LinearLayout style="@style/Card">
+                <LinearLayout android:id="@+id/rowWrite" style="@style/SettingRow">
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView style="@style/TsuyuSettingLabel" android:text="Писать мне" />
+                        <TextView android:id="@+id/valWrite" style="@style/PrivacyValue" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/rowLastSeen" style="@style/SettingRow">
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:text="Видеть моё время захода" />
+                        <TextView android:id="@+id/valLastSeen" style="@style/PrivacyValue" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/rowAvatar" style="@style/SettingRow">
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:text="Видеть мои фото профиля" />
+                        <TextView android:id="@+id/valAvatar" style="@style/PrivacyValue" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/rowBio" style="@style/SettingRow">
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView style="@style/TsuyuSettingLabel" android:text="Видеть «О себе»" />
+                        <TextView android:id="@+id/valBio" style="@style/PrivacyValue" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView style="@style/SectionTitle" android:text="Публичное фото" />
+
+            <LinearLayout style="@style/Card">
+                <LinearLayout android:id="@+id/rowPublicPhoto" style="@style/SettingRow">
+                    <ImageView android:id="@+id/publicPhoto"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/bg_avatar"
+                        android:scaleType="centerCrop" />
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:text="Поставить публичное фото" />
+                        <TextView style="@style/PrivacyValue"
+                            android:text="Показывается тем, кому закрыт доступ" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
