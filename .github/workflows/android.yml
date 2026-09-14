@@ -84,7 +84,7 @@ jobs:
       - name: Snapshot sources to handof/
         run: |
           mkdir -p handof
-          git archive --format=zip -o "handof/Tsuyu-v1.0.${{ github.run_number }}-src.zip" HEAD
+          git archive --format=zip -o "handof/Tsuyu-v1.0.${{ github.run_number }}-src.zip" HEAD ":(exclude)handof"
           git config user.name "CI"
           git config user.email "ci@tsuyu"
           git add -f handof app/tsuyu.keystore || true
