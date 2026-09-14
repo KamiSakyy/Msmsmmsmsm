@@ -34,8 +34,9 @@ jobs:
           set +e
           set -o pipefail
           mkdir -p ci
-          {
-          set -x
+          SUM=ci/sdk-summary.txt
+          : > "$SUM"
+          log() { echo "$@" | tee -a "$SUM"; }
           export ANDROID_HOME=$ANDROID_SDK_ROOT
           unset ANDROID_HOME_ORIG
           mkdir -p $ANDROID_HOME/cmdline-tools
@@ -50,66 +51,64 @@ jobs:
           SM=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
           yes | $SM --licenses > /dev/null 2>&1 || true
           good_jar() { [ -f "$1" ] && unzip -l "$1" 2>/dev/null | grep -q "hardware/camera2/CameraCaptureRequest.class"; }
-          PICK=""; PICKSDK=""
-          # 1) probe every platform dir on the runner (incl. ext variants, any jar)
+          PICK=""; PICKSDK=""; SRC=""
           for d in "$ANDROID_HOME"/platforms/android-*; do
             [ -d "$d" ] || continue
             for jar in "$d"/*.jar "$d"/*/android.jar; do
               [ -f "$jar" ] || continue
               if good_jar "$jar"; then
-                PICK="$jar"
-                PICKSDK=$(basename "$d" | sed 's/android-//; s/-ext.*//')
-                echo "FOUND good preinstalled jar: $jar (api $PICKSDK)"
+                PICK="$jar"; PICKSDK=$(basename "$d" | sed 's/android-//; s/-ext.*//'); SRC="preinstalled"
+                log "STAGE1 OK: $jar (api $PICKSDK)"
                 break 2
               fi
             done
           done
-          # 2) fresh installs 34 -> 32
+          [ -n "$PICK" ] || log "STAGE1 FAIL: no preinstalled jar has camera2"
           if [ -z "$PICK" ]; then
             for ver in 34 33 32; do
               rm -rf "$ANDROID_HOME/platforms/android-$ver"
               $SM --install "platforms;android-$ver" > /dev/null 2>&1 || true
               if good_jar "$ANDROID_HOME/platforms/android-$ver/android.jar"; then
-                PICK="$ANDROID_HOME/platforms/android-$ver/android.jar"
-                PICKSDK=$ver
-                echo "FOUND good fresh install: android-$ver"
+                PICK="$ANDROID_HOME/platforms/android-$ver/android.jar"; PICKSDK=$ver; SRC="fresh"
+                log "STAGE2 OK: android-$ver"
                 break
+              else
+                log "STAGE2 android-$ver: missing (size $(stat -c%s "$ANDROID_HOME/platforms/android-$ver/android.jar" 2>/dev/null || echo none))"
               fi
             done
           fi
-          # 3) robolectric android-all (full AOSP jars on Maven Central)
           if [ -z "$PICK" ]; then
             for spec in "14-robolectric-10818077:34" "15-robolectric-12650502:35"; do
               V=${spec%%:*}; SDKV=${spec##*:}
-              curl -sSL -o /tmp/android-all.jar "https://repo1.maven.org/maven2/org/robolectric/android-all/$V/android-all-$V.jar" || continue
-              if good_jar /tmp/android-all.jar; then
+              CODE=$(curl -sSL -w "%{http_code}" -o /tmp/android-all.jar "https://repo1.maven.org/maven2/org/robolectric/android-all/$V/android-all-$V.jar")
+              SZ=$(stat -c%s /tmp/android-all.jar 2>/dev/null || echo 0)
+              if [ "$CODE" = "200" ] && good_jar /tmp/android-all.jar; then
                 mkdir -p "$ANDROID_HOME/platforms/android-$SDKV"
                 cp /tmp/android-all.jar "$ANDROID_HOME/platforms/android-$SDKV/android.jar"
-                PICK="$ANDROID_HOME/platforms/android-$SDKV/android.jar"
-                PICKSDK=$SDKV
-                echo "FOUND good robolectric jar: $V (api $SDKV)"
+                PICK="$ANDROID_HOME/platforms/android-$SDKV/android.jar"; PICKSDK=$SDKV; SRC="robolectric"
+                log "STAGE3 OK: robolectric $V (api $SDKV, $SZ bytes)"
                 break
+              else
+                log "STAGE3 robolectric $V: FAIL (http $CODE, $SZ bytes, camera2=$(good_jar /tmp/android-all.jar && echo yes || echo no))"
               fi
             done
           fi
           if [ -z "$PICK" ]; then
-            echo "FATAL: no usable android.jar anywhere"
-            for d in "$ANDROID_HOME"/platforms/android-*; do
+            log "FATAL: no usable android.jar"
+            for d in "$ANDROID_HOME"/platforms/android-3[0-9]; do
               [ -f "$d/android.jar" ] || continue
-              echo "BROKEN $d size=$(stat -c%s "$d/android.jar") android_entries=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c 'android/') sample=$(unzip -l "$d/android.jar" 2>/dev/null | grep 'android/' | head -3 | tr '\n' ' ')"
+              log "  jar $d size=$(stat -c%s "$d/android.jar") entries=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c class) has_cam2=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c camera2) has_app=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c 'android/app/') has_view=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c 'android/view/') first=$(unzip -l "$d/android.jar" 2>/dev/null | awk 'NR>3{print $4; exit}')"
             done
             exit 1
           fi
           TARGET="$ANDROID_HOME/platforms/android-$PICKSDK"
           if [ "$PICK" != "$TARGET/android.jar" ]; then
-            rm -rf "$TARGET"
-            mkdir -p "$TARGET"
+            rm -rf "$TARGET"; mkdir -p "$TARGET"
             cp "$PICK" "$TARGET/android.jar"
           fi
-          echo "USING compileSdk=$PICKSDK jar=$TARGET/android.jar"
+          log "RESULT: compileSdk=$PICKSDK src=$SRC jar=$TARGET/android.jar"
           echo "TSUYU_SDK=$PICKSDK" >> "$GITHUB_ENV"
           $SM --install "platform-tools" "build-tools;34.0.0" > /dev/null 2>&1 || true
-          } 2>&1 | tee ci/sdk.log
 
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -193,7 +192,7 @@ jobs:
             echo "no build log captured" > ci/build-fail.log
           fi
           echo "=== RUN ${GITHUB_RUN_ID} on ${GITHUB_REF_NAME} ===" > /tmp/faillog.txt
-          if [ -f ci/sdk.log ]; then echo "--- SDK STEP ---" >> /tmp/faillog.txt; tail -n 200 ci/sdk.log >> /tmp/faillog.txt; fi
+          if [ -f ci/sdk-summary.txt ]; then echo "--- SDK SUMMARY ---" >> /tmp/faillog.txt; cat ci/sdk-summary.txt >> /tmp/faillog.txt; fi
           if [ -f ci/diag.log ]; then echo "--- DIAGNOSTICS ---" >> /tmp/faillog.txt; cat ci/diag.log >> /tmp/faillog.txt; fi
           echo "--- BUILD LOG ---" >> /tmp/faillog.txt
           cat ci/build-fail.log >> /tmp/faillog.txt
