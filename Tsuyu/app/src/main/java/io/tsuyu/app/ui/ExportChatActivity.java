@@ -35,6 +35,7 @@ import io.tsuyu.app.util.Ui;
 public class ExportChatActivity extends AppCompatActivity {
     private static final int EXPORT_FILE = 901;
     private String chatId;
+    private String peerUid;
     private String peerName = "chat";
     private byte[] pendingBytes;
     private Button btn;
@@ -45,7 +46,7 @@ public class ExportChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export);
         chatId = getIntent().getStringExtra("chatId");
-        String peerUid = Fb.otherOf(chatId);
+        peerUid = Fb.otherOf(chatId);
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btn = findViewById(R.id.btnExport);
         progress = findViewById(R.id.tvProgress);

@@ -33,7 +33,6 @@ public class TsuyuApp extends Application {
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setApiKey("AIzaSyBm0mIvHVznIeF2PoFk6dtdaiT5r877wyA")
                 .setApplicationId(APP_ID)
-                .setAuthVersion("v1")
                 .setProjectId("meow-874ce")
                 .setStorageBucket("meow-874ce.appspot.com")
                 .setDatabaseUrl("https://meow-874ce-default-rtdb.europe-west1.firebasedatabase.app")

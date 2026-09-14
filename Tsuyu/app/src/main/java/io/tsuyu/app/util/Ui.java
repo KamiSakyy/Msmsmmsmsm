@@ -1,4 +1,5 @@
 package io.tsuyu.app.util;
+import android.graphics.Bitmap;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -59,7 +60,7 @@ public class Ui {
 
     public static float textSizeSp() {
         if (custom == null) return 14f;
-        return custom.optDouble("size", 14);
+        return (float) custom.optDouble("size", 14f);
     }
 
     public static boolean bold() {

@@ -94,6 +94,12 @@ jobs:
             if unzip -l "$f" 2>/dev/null | grep -qE "org/webrtc/MediaStream.class"; then
               echo "PROVIDES org.webrtc.MediaStream: $f"
             fi
+            if unzip -l "$f" 2>/dev/null | grep -qE "org/bouncycastle/crypto/agreements/X25519Agreement.class"; then
+              echo "PROVIDES BC X25519Agreement: $f"
+            fi
+            if unzip -l "$f" 2>/dev/null | grep -qE "com/google/firebase/common/FirebaseAppOptions\$Builder.class"; then
+              echo "PROVIDES FirebaseAppOptions: $f"
+            fi
           done < /tmp/cp.txt
           echo "=== dependency tree (webrtc-related) ==="
           gradle :app:dependencies --configuration releaseCompileClasspath 2>/dev/null | grep -iE "webrtc|dafruits|android-" | sort -u | head -30
