@@ -48,6 +48,18 @@ public final class DoubleRatchet {
 
     // ---------- KDFs ----------
 
+    /**
+     * Canonical associated data. Built from a fixed field order rather than
+     * JSONObject.toString(), whose key order is implementation-defined.
+     */
+    private static byte[] aad(String dhB64, int pn, int n) {
+        try {
+            return ("dh=" + dhB64 + ";pn=" + pn + ";n=" + n).getBytes("UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static byte[][] kdfRoot(byte[] rootKey, byte[] dhOut) {
         byte[] out = CryptoUtil.hkdf(dhOut, rootKey, INFO_ROOT, 64);
         byte[] rk = new byte[32];
@@ -79,20 +91,19 @@ public final class DoubleRatchet {
         byte[] mk = messageKey(s.chainSend);
         s.chainSend = chainNext(s.chainSend);
 
-        JSONObject header = new JSONObject();
-        header.put("dh", CryptoUtil.b64(s.dhsPub));
-        header.put("pn", s.prevChainLen);
-        header.put("n", s.sendCount);
+        String dhB64 = CryptoUtil.b64(s.dhsPub);
+        int pn = s.prevChainLen;
+        int n = s.sendCount;
         s.sendCount++;
 
         byte[] iv = CryptoUtil.random(12);
-        byte[] aad = header.toString().getBytes("UTF-8");
+        byte[] aad = aad(dhB64, pn, n);
         byte[] ct = CryptoUtil.aesGcmEncrypt(mk, iv, plaintext, aad);
 
         JSONObject env = new JSONObject();
-        env.put("dh", header.getString("dh"));
-        env.put("pn", header.getInt("pn"));
-        env.put("n", header.getInt("n"));
+        env.put("dh", dhB64);
+        env.put("pn", pn);
+        env.put("n", n);
         env.put("iv", CryptoUtil.b64(iv));
         env.put("ct", CryptoUtil.b64(ct));
         return env;
@@ -107,11 +118,7 @@ public final class DoubleRatchet {
         byte[] iv = CryptoUtil.unb64(env.getString("iv"));
         byte[] ct = CryptoUtil.unb64(env.getString("ct"));
 
-        JSONObject header = new JSONObject();
-        header.put("dh", env.getString("dh"));
-        header.put("pn", pn);
-        header.put("n", n);
-        byte[] aad = header.toString().getBytes("UTF-8");
+        byte[] aad = aad(env.getString("dh"), pn, n);
 
         // 1. Try a previously skipped key.
         String skipKey = env.getString("dh") + "|" + n;

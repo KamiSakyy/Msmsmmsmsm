@@ -46,10 +46,32 @@ jobs:
         run: gradle wrapper --gradle-version 8.7 --distribution-type bin
 
       - name: Run encryption unit tests
-        run: ./gradlew :app:testReleaseUnitTest --stacktrace
+        id: tests
+        run: |
+          set -o pipefail
+          ./gradlew :app:testReleaseUnitTest --stacktrace 2>&1 | tee /tmp/build.log
 
       - name: Build release APK
-        run: ./gradlew :app:assembleRelease --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleRelease --stacktrace 2>&1 | tee -a /tmp/build.log
+
+      - name: Report failure via API
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Run ${{ github.run_number }} failed on \`${{ github.sha }}\`."
+            echo
+            echo '```'
+            grep -E "error:|FAILURE|FAILED|Caused by|Could not|Execution failed|expected:|AssertionError|^[[:space:]]+at com\.tsuyu" /tmp/build.log \
+              | head -c 40000 || tail -c 20000 /tmp/build.log
+            echo '```'
+          } > /tmp/report.md
+          gh issue create --title "CI failure (run ${{ github.run_number }})" \
+            --body-file /tmp/report.md || \
+          gh api repos/${{ github.repository }}/issues -f title="CI failure ${{ github.run_number }}" -F body=@/tmp/report.md
 
       - name: Rename APK
         run: |

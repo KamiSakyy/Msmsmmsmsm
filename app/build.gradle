@@ -69,7 +69,8 @@ dependencies {
     implementation 'androidx.camera:camera-lifecycle:1.3.4'
     implementation 'androidx.camera:camera-video:1.3.4'
     implementation 'androidx.camera:camera-view:1.3.4'
-    implementation 'org.webrtc:google-webrtc:1.0.32006'
+    // WebRTC (Maven Central mirror of the official org.webrtc package)
+    implementation 'io.github.webrtc-sdk:android:125.6422.07'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.json:json:20240303'

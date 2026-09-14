@@ -114,9 +114,9 @@ public class SessionManager {
         env.put("target", prefs.getString("t_" + peerUid, peerSpk));
         env.put("body", body);
 
-        // Authenticate the whole envelope with our Ed25519 identity.
-        byte[] signed = env.toString().getBytes("UTF-8");
-        env.put("sig", CryptoUtil.b64(CryptoUtil.sign(identity.edPriv, signed)));
+        // Authenticate the envelope with our Ed25519 identity over a canonical
+        // byte string (JSON key order is not stable across platforms).
+        env.put("sig", CryptoUtil.b64(CryptoUtil.sign(identity.edPriv, signable(env))));
         return env;
     }
 
@@ -126,15 +126,11 @@ public class SessionManager {
     public synchronized byte[] decrypt(String peerUid, JSONObject env) throws Exception {
         // verify signature (ignore if absent for forward-compat)
         if (env.has("sig") && env.has("ed")) {
-            JSONObject copy = new JSONObject(env.toString());
-            String sig = copy.getString("sig");
-            copy.remove("sig");
             boolean ok = CryptoUtil.verify(CryptoUtil.unb64(env.getString("ed")),
-                    copy.toString().getBytes("UTF-8"), CryptoUtil.unb64(sig));
-            if (!ok) {
-                // Signature mismatch is not fatal for readability, but we surface it.
-                // Continue: AEAD still guarantees confidentiality/integrity of the body.
-            }
+                    signable(env), CryptoUtil.unb64(env.getString("sig")));
+            // Not fatal: AEAD already guarantees confidentiality and integrity of
+            // the body. The signature additionally binds the sender identity.
+            if (!ok) env.put("sigValid", false);
         }
 
         JSONObject body = env.getJSONObject("body");
@@ -173,6 +169,23 @@ public class SessionManager {
         }
         save(peerUid, state);
         return plain;
+    }
+
+    /** Canonical, order-independent byte string covering the envelope fields. */
+    private static byte[] signable(JSONObject env) throws Exception {
+        JSONObject body = env.getJSONObject("body");
+        String s = "v=" + env.optInt("v")
+                + ";ik=" + env.optString("ik")
+                + ";ed=" + env.optString("ed")
+                + ";spk=" + env.optString("spk")
+                + ";eph=" + env.optString("eph", "")
+                + ";target=" + env.optString("target", "")
+                + ";dh=" + body.optString("dh")
+                + ";pn=" + body.optInt("pn")
+                + ";n=" + body.optInt("n")
+                + ";iv=" + body.optString("iv")
+                + ";ct=" + body.optString("ct");
+        return s.getBytes("UTF-8");
     }
 
     // ---- signed pre-key archive, so old messages stay readable after rotation ----
