@@ -6,15 +6,22 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,16 +32,19 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.tsuyu.messenger.R;
+import com.tsuyu.messenger.TsuyuApp;
 import com.tsuyu.messenger.data.Models;
 import com.tsuyu.messenger.data.Prefs;
 import com.tsuyu.messenger.data.Repo;
 import com.tsuyu.messenger.service.TsuyuService;
 import com.tsuyu.messenger.util.Ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,10 +53,19 @@ public class MainActivity extends AppCompatActivity {
     private Prefs prefs;
     private String me;
 
+    private DrawerLayout drawerLayout;
     private RecyclerView list;
     private EditText searchInput;
-    private ImageView btnClearSearch, btnGhost, btnProfile;
+    private ImageView btnClearSearch, btnGhost, btnProfile, btnDrawerMenu;
     private LinearLayout emptyState;
+
+    private TextView tabAll, tabDirect, tabUnread;
+    private int currentTab = 0; // 0=all, 1=direct, 2=unread
+
+    // Drawer Views
+    private ImageView drawerAvatar, drawerAvatarEdit;
+    private TextView drawerName, drawerUsername, drawerOnlineStatus, drawerBio, drawerCacheText;
+    private Switch drawerSwitchStealth, drawerSwitchSound;
 
     private DialogAdapter dialogAdapter;
     private SearchAdapter searchAdapter;
@@ -56,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
     private final Map<String, DatabaseReference> presenceRefs = new HashMap<>();
     private final Handler ui = new Handler(Looper.getMainLooper());
 
-    private ChildEventListener chatsListener;
-    private DatabaseReference chatsRef;
     private ValueEventListener typingListener;
     private DatabaseReference typingRef;
 
@@ -77,12 +94,21 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        drawerLayout = findViewById(R.id.drawerLayout);
+        btnDrawerMenu = findViewById(R.id.btnDrawerMenu);
         list = findViewById(R.id.dialogsList);
         searchInput = findViewById(R.id.searchInput);
         btnClearSearch = findViewById(R.id.btnClearSearch);
         btnGhost = findViewById(R.id.btnGhost);
         btnProfile = findViewById(R.id.btnProfile);
         emptyState = findViewById(R.id.emptyState);
+
+        tabAll = findViewById(R.id.tabAll);
+        tabDirect = findViewById(R.id.tabDirect);
+        tabUnread = findViewById(R.id.tabUnread);
+
+        setupDrawer();
+        setupTabs();
 
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setItemAnimator(new androidx.recyclerview.widget.DefaultItemAnimator());
@@ -95,10 +121,15 @@ public class MainActivity extends AppCompatActivity {
         btnProfile.setOnClickListener(v ->
                 startActivity(new Intent(this, ProfileActivity.class)));
 
+        if (btnDrawerMenu != null) {
+            btnDrawerMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
+
         updateGhostIcon();
         btnGhost.setOnClickListener(v -> {
             prefs.setGhost(!prefs.ghost());
             updateGhostIcon();
+            if (drawerSwitchStealth != null) drawerSwitchStealth.setChecked(prefs.ghost());
             Ui.tapScale(btnGhost);
             repo.goOnline();
         });
@@ -106,11 +137,174 @@ public class MainActivity extends AppCompatActivity {
         btnClearSearch.setOnClickListener(v -> searchInput.setText(""));
         setupSearch();
 
-        loadMyAvatar();
+        loadMyProfile();
         attachChats();
         attachTyping();
 
         TsuyuService.start(this);
+    }
+
+    private void setupTabs() {
+        tabAll.setOnClickListener(v -> setTab(0));
+        tabDirect.setOnClickListener(v -> setTab(1));
+        tabUnread.setOnClickListener(v -> setTab(2));
+    }
+
+    private void setTab(int tab) {
+        currentTab = tab;
+        tabAll.setBackgroundResource(tab == 0 ? R.drawable.bg_chip_active : R.drawable.bg_chip);
+        tabAll.setTextColor(ContextCompat.getColor(this, tab == 0 ? R.color.white : R.color.text_secondary));
+
+        tabDirect.setBackgroundResource(tab == 1 ? R.drawable.bg_chip_active : R.drawable.bg_chip);
+        tabDirect.setTextColor(ContextCompat.getColor(this, tab == 1 ? R.color.white : R.color.text_secondary));
+
+        tabUnread.setBackgroundResource(tab == 2 ? R.drawable.bg_chip_active : R.drawable.bg_chip);
+        tabUnread.setTextColor(ContextCompat.getColor(this, tab == 2 ? R.color.white : R.color.text_secondary));
+
+        publish();
+    }
+
+    private void setupDrawer() {
+        drawerAvatar = findViewById(R.id.drawerAvatar);
+        drawerAvatarEdit = findViewById(R.id.drawerAvatarEdit);
+        drawerName = findViewById(R.id.drawerName);
+        drawerUsername = findViewById(R.id.drawerUsername);
+        drawerOnlineStatus = findViewById(R.id.drawerOnlineStatus);
+        drawerBio = findViewById(R.id.drawerBio);
+        drawerCacheText = findViewById(R.id.drawerCacheText);
+        drawerSwitchStealth = findViewById(R.id.drawerSwitchStealth);
+        drawerSwitchSound = findViewById(R.id.drawerSwitchSound);
+
+        if (drawerSwitchStealth != null) {
+            drawerSwitchStealth.setChecked(prefs.ghost());
+            drawerSwitchStealth.setOnCheckedChangeListener((b, checked) -> {
+                prefs.setGhost(checked);
+                updateGhostIcon();
+                repo.goOnline();
+            });
+        }
+
+        if (drawerSwitchSound != null) {
+            drawerSwitchSound.setChecked(prefs.notificationsEnabled());
+            drawerSwitchSound.setOnCheckedChangeListener((b, checked) -> {
+                prefs.setNotificationsEnabled(checked);
+                TsuyuApp.get().createChannels();
+            });
+        }
+
+        findViewById(R.id.drawerRowStealth).setOnClickListener(v -> {
+            if (drawerSwitchStealth != null) drawerSwitchStealth.toggle();
+        });
+        findViewById(R.id.drawerRowSound).setOnClickListener(v -> {
+            if (drawerSwitchSound != null) drawerSwitchSound.toggle();
+        });
+
+        findViewById(R.id.drawerRowKeys).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(this, KeysActivity.class));
+        });
+
+        findViewById(R.id.drawerRowProfile).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(this, ProfileActivity.class));
+        });
+
+        findViewById(R.id.drawerRowCustomization).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(this, CustomizationActivity.class));
+        });
+
+        findViewById(R.id.drawerRowPrivacy).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(this, PrivacyActivity.class));
+        });
+
+        if (drawerAvatarEdit != null) {
+            drawerAvatarEdit.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(new Intent(this, ProfileActivity.class));
+            });
+        }
+
+        if (drawerBio != null) {
+            drawerBio.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(new Intent(this, ProfileActivity.class));
+            });
+        }
+
+        findViewById(R.id.drawerRowCache).setOnClickListener(v -> clearCachePrompt());
+        findViewById(R.id.drawerRowLogout).setOnClickListener(v -> logoutPrompt());
+
+        calcDrawerCache();
+    }
+
+    private void calcDrawerCache() {
+        new Thread(() -> {
+            long size = getDirSize(getCacheDir());
+            if (getExternalCacheDir() != null) size += getDirSize(getExternalCacheDir());
+            double mb = size / (1024.0 * 1024.0);
+            String text = String.format(Locale.US, "Очистить кэш (%.1f MB)", mb);
+            runOnUiThread(() -> {
+                if (drawerCacheText != null) drawerCacheText.setText(text);
+            });
+        }).start();
+    }
+
+    private long getDirSize(File dir) {
+        if (dir == null || !dir.exists()) return 0;
+        long total = 0;
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) total += getDirSize(f);
+                else total += f.length();
+            }
+        }
+        return total;
+    }
+
+    private void clearCachePrompt() {
+        new AlertDialog.Builder(this, R.style.Theme_Tsuyu_Dialog)
+                .setTitle("Очистить кэш?")
+                .setMessage("Будут удалены временные файлы и превью сообщений.")
+                .setPositiveButton("Очистить", (d, w) -> new Thread(() -> {
+                    deleteDir(getCacheDir());
+                    if (getExternalCacheDir() != null) deleteDir(getExternalCacheDir());
+                    runOnUiThread(() -> {
+                        calcDrawerCache();
+                        Toast.makeText(this, "Кэш очищен", Toast.LENGTH_SHORT).show();
+                    });
+                }).start())
+                .setNegativeButton("Отмена", null)
+                .show();
+    }
+
+    private void deleteDir(File dir) {
+        if (dir == null || !dir.exists()) return;
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) deleteDir(f);
+                else f.delete();
+            }
+        }
+    }
+
+    private void logoutPrompt() {
+        new AlertDialog.Builder(this, R.style.Theme_Tsuyu_Dialog)
+                .setTitle("Выйти из аккаунта?")
+                .setMessage("Приватные ключи останутся на устройстве.")
+                .setPositiveButton("Выйти", (d, w) -> {
+                    repo.goOffline();
+                    FirebaseAuth.getInstance().signOut();
+                    Intent i = new Intent(this, AuthActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(i);
+                    finish();
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
     }
 
     private void updateGhostIcon() {
@@ -120,12 +314,18 @@ public class MainActivity extends AppCompatActivity {
         btnGhost.setBackgroundResource(R.drawable.bg_circle_btn);
     }
 
-    private void loadMyAvatar() {
+    private void loadMyProfile() {
         repo.userRef(me).addValueEventListener(new ValueEventListener() {
             @Override public void onDataChange(@NonNull DataSnapshot s) {
                 if (!s.exists()) return;
                 Models.User u = Repo.parseUser(s);
                 Ui.setAvatar(btnProfile, u.avatar, u.uid, u.name);
+                if (drawerAvatar != null) Ui.setAvatar(drawerAvatar, u.avatar, u.uid, u.name);
+                if (drawerName != null) drawerName.setText(u.name);
+                if (drawerUsername != null) drawerUsername.setText("@" + (u.username != null ? u.username : "user"));
+                if (drawerBio != null && u.bio != null && !u.bio.isEmpty()) {
+                    drawerBio.setText(u.bio);
+                }
             }
             @Override public void onCancelled(@NonNull DatabaseError e) { }
         });
@@ -150,7 +350,6 @@ public class MainActivity extends AppCompatActivity {
                     refreshEmpty();
                     return;
                 }
-                // realtime search, debounced 180ms
                 searchTask = () -> repo.searchByUsername(q, users -> runOnUiThread(() -> {
                     searching = true;
                     if (list.getAdapter() != searchAdapter) {
@@ -168,19 +367,6 @@ public class MainActivity extends AppCompatActivity {
     // ----------------- dialogs -----------------
 
     private void attachChats() {
-        chatsRef = repo.db().getReference("chats");
-        chatsListener = new ChildEventListener() {
-            @Override public void onChildAdded(@NonNull DataSnapshot s, String prev) { handle(s); }
-            @Override public void onChildChanged(@NonNull DataSnapshot s, String prev) { handle(s); }
-            @Override public void onChildRemoved(@NonNull DataSnapshot s) {
-                String peer = peerOf(s.getKey());
-                if (peer != null) { dialogs.remove(peer); publish(); }
-            }
-            @Override public void onChildMoved(@NonNull DataSnapshot s, String prev) { }
-            @Override public void onCancelled(@NonNull DatabaseError e) { }
-        };
-        // Only chats that contain our uid are relevant; RTDB has no "contains" query,
-        // so we track our own index of conversations instead.
         repo.db().getReference("userChats").child(me)
                 .addChildEventListener(new ChildEventListener() {
                     @Override public void onChildAdded(@NonNull DataSnapshot s, String p) { watchChat(s.getKey()); }
@@ -293,27 +479,19 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onCancelled(@NonNull DatabaseError e) { }
         };
         typingRef.addValueEventListener(typingListener);
-        // typing flags expire on their own; re-render periodically
         ui.postDelayed(new Runnable() {
             @Override public void run() { publish(); ui.postDelayed(this, 2000); }
         }, 2000);
     }
 
-    private String peerOf(String chatKey) {
-        if (chatKey == null || !chatKey.contains("_")) return null;
-        String[] parts = chatKey.split("_");
-        if (parts.length != 2) return null;
-        if (parts[0].equals(me)) return parts[1];
-        if (parts[1].equals(me)) return parts[0];
-        return null;
-    }
-
-    private void handle(DataSnapshot s) { /* handled through userChats index */ }
-
     private void publish() {
         if (searching) return;
         List<Models.Dialog> out = new ArrayList<>();
-        for (Models.Dialog d : dialogs.values()) if (d.peer != null) out.add(d);
+        for (Models.Dialog d : dialogs.values()) {
+            if (d.peer == null) continue;
+            if (currentTab == 2 && d.unread == 0) continue; // unread tab filter
+            out.add(d);
+        }
         out.sort((a, b) -> Long.compare(b.last == null ? 0 : b.last.ts,
                 a.last == null ? 0 : a.last.ts));
         dialogAdapter.submit(out);
@@ -340,9 +518,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         repo.goOnline();
+        calcDrawerCache();
         dialogAdapter.notifyDataSetChanged();
     }
 

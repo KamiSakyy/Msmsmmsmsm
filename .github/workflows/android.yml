@@ -37,11 +37,13 @@ jobs:
 
       - name: Generate signing keystore
         run: |
-          keytool -genkeypair -v \
-            -keystore app/tsuyu.keystore \
-            -alias tsuyu -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass tsuyu2026 -keypass tsuyu2026 \
-            -dname "CN=Tsuyu, OU=Tsuyu, O=Tsuyu, L=Tokyo, S=Tokyo, C=JP"
+          if [ ! -f app/tsuyu.keystore ]; then
+            keytool -genkeypair -v \
+              -keystore app/tsuyu.keystore \
+              -alias tsuyu -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass tsuyu2026 -keypass tsuyu2026 \
+              -dname "CN=Tsuyu, OU=Tsuyu, O=Tsuyu, L=Tokyo, S=Tokyo, C=JP"
+          fi
 
       - name: Set up Gradle wrapper
         run: gradle wrapper --gradle-version 8.7 --distribution-type bin
@@ -77,6 +79,7 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk out/Tsuyu-${{ github.run_number }}.apk
           cp app/build/outputs/apk/release/app-release.apk out/Tsuyu.apk
           cp app/build/outputs/apk/release/app-release.apk out/Tsuyu-Messenger.apk
+          ls -lh out/*.apk
 
       - name: Snapshot sources to handof/
         run: |
@@ -84,7 +87,7 @@ jobs:
           git archive --format=zip -o "handof/Tsuyu-v1.0.${{ github.run_number }}-src.zip" HEAD
           git config user.name "CI"
           git config user.email "ci@tsuyu"
-          git add -f handof
+          git add -f handof app/tsuyu.keystore || true
           git commit -m "handof: source snapshot v1.0.${{ github.run_number }} [skip ci]" || exit 0
           git pull --rebase origin ${{ github.ref_name }} || true
           git push origin HEAD:${{ github.ref_name }}
@@ -106,7 +109,7 @@ jobs:
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
-        if: always()
+        if: success()
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: Tsuyu v1.0.${{ github.run_number }}
