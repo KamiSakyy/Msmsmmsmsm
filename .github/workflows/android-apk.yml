@@ -38,6 +38,8 @@ jobs:
         shell: bash
         run: |
           set -e
+          mkdir -p ci
+          exec > >(tee ci/platform.log) 2>&1
           PJ="$ANDROID_SDK_ROOT/platforms/android-34/android.jar"
           need() { jar tf "$PJ" 2>/dev/null | grep -q "^$1$"; }
           if need "android/hardware/camera2/CameraCaptureRequest.class" && need "android/view/GestureDetector\$SimpleOnDoubleTapListener.class"; then
@@ -51,7 +53,7 @@ jobs:
           done
           jar tf /tmp/android-34.jar | grep -q "^android/hardware/camera2/CameraCaptureRequest.class$" || { echo "FATAL: downloaded platform jar invalid"; jar tf /tmp/android-34.jar | head -20; exit 1; }
           mkdir -p "$ANDROID_SDK_ROOT/platforms/android-34"
-          [ -f "$PJ" ] && mv "$PJ" "$PJ.bak"
+          if [ -f "$PJ" ]; then mv "$PJ" "$PJ.bak"; fi
           cp /tmp/android-34.jar "$PJ"
           echo "platform jar installed (API 34, $(stat -c%s "$PJ") bytes)"
 
@@ -126,6 +128,7 @@ jobs:
             echo "no build log captured" > ci/build-fail.log
           fi
           echo "=== RUN ${GITHUB_RUN_ID} on ${GITHUB_REF_NAME} ===" > /tmp/faillog.txt
+          if [ -f ci/platform.log ]; then echo "--- PLATFORM ---" >> /tmp/faillog.txt; cat ci/platform.log >> /tmp/faillog.txt; fi
           if [ -f ci/verify.log ]; then echo "--- VERIFY ---" >> /tmp/faillog.txt; cat ci/verify.log >> /tmp/faillog.txt; fi
           cat ci/build-fail.log >> /tmp/faillog.txt
           git config user.name "tsuyu-ci"
