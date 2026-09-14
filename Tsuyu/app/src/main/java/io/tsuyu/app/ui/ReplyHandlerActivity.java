@@ -24,12 +24,12 @@ public class ReplyHandlerActivity extends Activity {
         String text = null;
         Intent intent = getIntent();
         try {
-            Intent remote = intent.getParcelableExtra(Intent.EXTRA_REMOTE_INPUTS);
-            if (intent != null && intent.getParcelableArrayListExtra("remoteInputResults") != null) {
-                android.app.RemoteInput[] results =
-                        android.app.RemoteInput.getResultsFromIntent(intent);
-                for (android.app.RemoteInput r : results) {
-                    String res = r.getResultsText(r.getResultsKey());
+            android.os.Bundle resB = android.app.RemoteInput.getResultsFromIntent(intent);
+            if (resB != null) {
+                for (String k : resB.keySet()) {
+                    android.app.RemoteInput r = resB.getParcelable(k);
+                    if (r == null) continue;
+                    CharSequence res = r.getResultsText(intent);
                     if (res != null) text = res.toString().trim();
                 }
             }
@@ -61,7 +61,7 @@ public class ReplyHandlerActivity extends Activity {
                         patch.put("last/ty", "text");
                         patch.put("last/by", me);
                         patch.put("last/k", key);
-                        Fb.fb().getReference("chats/" + cid).updateChildren(patch.toMap());
+                        Fb.fb().getReference("chats/" + cid).updateChildren(Fb.toMap(patch));
                         ok = true;
                     } catch (Throwable t) {
                         ok = false;

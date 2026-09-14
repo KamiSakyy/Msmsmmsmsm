@@ -123,7 +123,7 @@ public class CircleRecorderActivity extends AppCompatActivity {
                     session = s;
                     try {
                         android.hardware.camera2.CameraCaptureRequest.Builder b =
-                                camera.createCaptureBuilder();
+                                camera.createCaptureRequest(android.hardware.camera2.CameraCaptureRequest.TEMPLATE_RECORD);
                         b.set(android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE,
                                 android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
                         s.setRepeatingRequest(b.build(), null, main);
@@ -166,7 +166,7 @@ public class CircleRecorderActivity extends AppCompatActivity {
                             session = s;
                             try {
                                 android.hardware.camera2.CameraCaptureRequest.Builder b =
-                                        camera.createCaptureBuilder();
+                                        camera.createCaptureRequest(android.hardware.camera2.CameraCaptureRequest.TEMPLATE_RECORD);
                                 b.set(android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE,
                                         android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
                                 s.setRepeatingRequest(b.build(), null, main);
@@ -223,7 +223,7 @@ public class CircleRecorderActivity extends AppCompatActivity {
                                 session = s;
                                 try {
                                     android.hardware.camera2.CameraCaptureRequest.Builder b =
-                                            camera.createCaptureBuilder();
+                                            camera.createCaptureRequest(android.hardware.camera2.CameraCaptureRequest.TEMPLATE_RECORD);
                                     b.set(android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE,
                                             android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
                                     s.setRepeatingRequest(b.build(), null, main);

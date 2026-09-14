@@ -54,5 +54,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:20.3.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.78.1'
-    implementation 'com.dafruits:webrtc:123.0.0'
+    implementation files('libs/libwebrtc-123.0.0.aar')
 }

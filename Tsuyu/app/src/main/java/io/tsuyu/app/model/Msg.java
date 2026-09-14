@@ -28,7 +28,7 @@ public class Msg {
         d.put("f", msg.from);
         d.put("t", msg.ts);
         d.put("ty", msg.type == null ? "text" : msg.type);
-        if (msg.e != null) d.put("e", msg.e.toMap());
+        if (msg.e != null) d.put("e", io.tsuyu.app.core.Fb.toMap(msg.e));
         java.util.Map<String, Object> m2 = new java.util.HashMap<>();
         if (msg.replyTo != null) m2.put("reply", msg.replyTo);
         if (msg.fwdFrom != null) m2.put("fw", msg.fwdFrom);

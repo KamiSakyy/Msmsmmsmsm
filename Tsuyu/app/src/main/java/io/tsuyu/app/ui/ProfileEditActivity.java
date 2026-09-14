@@ -36,7 +36,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         etLast = findViewById(R.id.etLast);
         etUsername = findViewById(R.id.etUsername);
         etBio = findViewById(R.id.etBio);
-        findViewById(R.id.etEmail).setText(Fb.user() == null ? "" : Fb.user().getEmail());
+        ((TextView) findViewById(R.id.etEmail)).setText(Fb.user() == null ? "" : Fb.user().getEmail());
 
         Fb.fetchUser(Fb.myUid(), map -> {
             MeowUser u = Fb.parseUserRaw(map);
@@ -122,10 +122,9 @@ public class ProfileEditActivity extends AppCompatActivity {
                 try {
                     com.google.firebase.database.FirebaseDatabase.getInstance()
                             .getReference("search/" + username)
-                            .updateChildren(new JSONObject()
+                            .updateChildren(Fb.toMap(new JSONObject()
                                     .put("uid", Fb.myUid())
-                                    .put("u", username)
-                                    .toMap());
+                                    .put("u", username)));
                 } catch (Throwable ignored) {}
             });
             Ui.toast(this, "Сохранено ✓");

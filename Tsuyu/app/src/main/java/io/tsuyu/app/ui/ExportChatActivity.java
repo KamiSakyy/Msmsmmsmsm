@@ -45,8 +45,7 @@ public class ExportChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export);
         chatId = getIntent().getStringExtra("chatId");
-        String peerUid = Fb.otherOf(chatId)[0].equals(Fb.myUid())
-                ? Fb.otherOf(chatId)[1] : Fb.otherOf(chatId)[0];
+        String peerUid = Fb.otherOf(chatId);
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btn = findViewById(R.id.btnExport);
         progress = findViewById(R.id.tvProgress);
@@ -84,7 +83,7 @@ public class ExportChatActivity extends AppCompatActivity {
                     try {
                         Map<String, Msg> all = new HashMap<>();
                         for (DataSnapshot ds : s.getChildren()) {
-                            Msg m = Msg.fromDb(ds);
+                            Msg m = Msg.fromDb(ExportChatActivity.this, peerUid, ds);
                             if (m != null) all.put(ds.getKey(), m);
                         }
                         java.util.TreeMap<Long, Msg> sorted = new java.util.TreeMap<>();

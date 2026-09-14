@@ -196,7 +196,7 @@ public class SettingsActivity extends AppCompatActivity {
                     .getReference("users/" + Fb.myUid() + "/ghost").setValue(on);
             if (on) {
                 com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users/" + Fb.myUid())
-                        .updateChildren(new JSONObject().put("online", false).put("lastSeen", System.currentTimeMillis()).toMap());
+                        .updateChildren(Fb.toMap(new JSONObject().put("online", false).put("lastSeen", System.currentTimeMillis())));
             } else {
                 Fb.setPresence(this, true);
             }

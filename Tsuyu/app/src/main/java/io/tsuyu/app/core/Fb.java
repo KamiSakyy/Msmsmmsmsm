@@ -142,6 +142,34 @@ public class Fb {
         return u;
     }
 
+    /** JSONObject -> Map (org.json has no toMap). */
+    public static java.util.Map<String, Object> toMap(org.json.JSONObject j) {
+        java.util.Map<String, Object> m = new java.util.HashMap<>();
+        if (j == null) return m;
+        java.util.Iterator<String> it = j.keys();
+        while (it.hasNext()) {
+            String k = it.next();
+            try {
+                Object v = j.get(k);
+                m.put(k, jsonToObj(v));
+            } catch (Throwable ignored) {}
+        }
+        return m;
+    }
+
+    private static Object jsonToObj(Object v) {
+        if (v instanceof org.json.JSONObject) return toMap((org.json.JSONObject) v);
+        if (v instanceof org.json.JSONArray) {
+            org.json.JSONArray a = (org.json.JSONArray) v;
+            java.util.List<Object> l = new java.util.ArrayList<>();
+            for (int i = 0; i < a.length(); i++) {
+                try { l.add(jsonToObj(a.get(i))); } catch (Throwable ignored) {}
+            }
+            return l;
+        }
+        return v;
+    }
+
     public static String asStr(Object o) { return o == null ? null : String.valueOf(o); }
     public static Boolean asBool(Object o) {
         if (o == null) return null;
@@ -195,7 +223,7 @@ public class Fb {
                 patch.put("notify", n);
             }
             DatabaseReference db = FirebaseDatabase.getInstance().getReference("users/" + uid);
-            db.updateChildren(patch.toMap()).addOnFailureListener(e -> Log.e(TAG, "saveMyProfile", e));
+            db.updateChildren(toMap(patch)).addOnFailureListener(e -> Log.e(TAG, "saveMyProfile", e));
         } catch (Throwable t) {
             Log.e(TAG, "saveMyProfile", t);
         }
@@ -220,7 +248,7 @@ public class Fb {
                 patch.put("typingIn", null);
             }
             DatabaseReference db = FirebaseDatabase.getInstance().getReference("users/" + uid);
-            db.updateChildren(patch.toMap()).addOnFailureListener(e -> Log.e(TAG, "setPresence", e));
+            db.updateChildren(toMap(patch)).addOnFailureListener(e -> Log.e(TAG, "setPresence", e));
             if (online) {
                 db.getValue().addOnCompleteListener(task -> {
                     try {
@@ -247,7 +275,7 @@ public class Fb {
                 patch.put("typingUntil", null);
             }
             FirebaseDatabase.getInstance().getReference("users/" + uid)
-                    .updateChildren(patch.toMap());
+                    .updateChildren(toMap(patch));
         } catch (Throwable t) {
             Log.e(TAG, "setTyping", t);
         }

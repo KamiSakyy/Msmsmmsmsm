@@ -152,13 +152,12 @@ public class RegisterActivity extends AppCompatActivity {
                         // search index
                         com.google.firebase.database.FirebaseDatabase.getInstance()
                                 .getReference("search/" + username)
-                                .updateChildren(new JSONObject()
+                                .updateChildren(Fb.toMap(new JSONObject()
                                         .put("uid", uid)
-                                        .put("u", username)
-                                        .toMap());
+                                        .put("u", username)));
                         com.google.firebase.database.FirebaseDatabase.getInstance()
                                 .getReference("users/" + uid)
-                                .updateChildren(new JSONObject().put("created", System.currentTimeMillis()).toMap());
+                                .updateChildren(Fb.toMap(new JSONObject().put("created", System.currentTimeMillis())));
                         BgService.start(this);
                         startActivity(new Intent(this, MainActivity.class));
                         finish();

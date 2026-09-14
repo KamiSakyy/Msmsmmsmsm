@@ -107,7 +107,7 @@ public class BgService extends Service {
             ensurePresence();
             // my chats index
             myChatsRef = FirebaseDatabase.getInstance().getReference("mychats/" + me);
-            myChatsRef.addOnChildEventListener(new ChildEventListener() {
+            myChatsRef.addChildEventListener(new ChildEventListener() {
                 @Override public void onChildAdded(DataSnapshot ds, String prev) { attachChat(ds.getKey()); }
                 @Override public void onChildChanged(DataSnapshot ds, String prev) {}
                 @Override public void onChildRemoved(DataSnapshot ds) { detachChat(ds.getKey()); }
@@ -152,7 +152,7 @@ public class BgService extends Service {
             db.child("typingIn").onDisconnect().setValue(null);
             db.child("lastSeen").onDisconnect().setValue(System.currentTimeMillis());
             if (meU == null || !meU.online) {
-                db.updateChildren(new JSONObject().put("online", true).put("lastSeen", System.currentTimeMillis()).toMap());
+                db.updateChildren(Fb.toMap(new JSONObject().put("online", true).put("lastSeen", System.currentTimeMillis())));
             }
         } catch (Throwable t) {
             Log.e(TAG, "ensurePresence", t);
@@ -169,7 +169,7 @@ public class BgService extends Service {
                     .addChildEventListener(new ChildEventListener() {
                         @Override public void onChildAdded(DataSnapshot ds, String prev) { onMsg(ds, chatId, peer); }
                         @Override public void onChildChanged(DataSnapshot ds, String prev) { onMsg(ds, chatId, peer); }
-                        @Override public void onChildRemoved(DataSnapshot ds, String prev) { fireEvent(chatId, 2, ds.getKey()); }
+                        @Override public void onChildRemoved(DataSnapshot ds) { fireEvent(chatId, 2, ds.getKey()); }
                         @Override public void onChildMoved(DataSnapshot ds, String prev) {}
                         @Override public void onCancelled(DatabaseError e) {}
                     });

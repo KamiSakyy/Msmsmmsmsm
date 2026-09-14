@@ -72,7 +72,7 @@ public class KeysActivity extends AppCompatActivity {
                                 exportName = "tsuyu_keys_" + System.currentTimeMillis() + ".bin";
                                 File f = new File(getCacheDir(), exportName);
                                 try {
-                                    java.io.FileOutputStream fos = new FileOutputStream(f);
+                                    java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
                                     fos.write(data);
                                     fos.close();
                                     Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);

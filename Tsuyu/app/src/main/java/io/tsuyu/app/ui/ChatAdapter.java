@@ -137,7 +137,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // bubble background
             h.bubble.setBackgroundResource(mine ? R.drawable.bg_bubble_out : R.drawable.bg_bubble_in);
             if (h.innerRoot != null) h.innerRoot.setGravity(mine ? Gravity.END : Gravity.START);
-            h.bubble.setMaxWidth(act.dp((int) (act.getResources().getDisplayMetrics().widthPixels * 0.78)));
+            h.bubble.getLayoutParams().width = act.dp((int) (act.getResources().getDisplayMetrics().widthPixels * 0.78));
             // hidden by me / deleted
             if (m.hiddenByMe || m.deletedForAll > 0) {
                 h.root.setAlpha(0.45f);
@@ -203,7 +203,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 final Msg fm = m;
                 h.bubble.setOnClickListener(null);
                 h.root.setOnClickListener(null);
-                GestureDetector gd = new GestureDetector(h.root.getContext(), new GestureDetector.SimpleOnDoubleTapListener() {
+                GestureDetector gd = new GestureDetector(h.root.getContext(), new GestureDetector.SimpleOnGestureListener.SimpleOnDoubleTapListener() {
                     @Override public boolean onDoubleTap(MotionEvent e) {
                         act.toggleReaction(fm);
                         h.root.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -347,7 +347,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         }
                     }
                     // play button
-                    View play = new FrameLayout(ctx);
+                    FrameLayout play = new FrameLayout(ctx);
                     int ps = act.dp(56);
                     FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(ps, ps);
                     plp.gravity = Gravity.CENTER;
@@ -401,7 +401,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     View ring = new View(ctx);
                     ring.setBackgroundResource(R.drawable.bg_circle_ring);
                     wrap.addView(ring, new FrameLayout.LayoutParams(size, size));
-                    View play = new FrameLayout(ctx);
+                    FrameLayout play = new FrameLayout(ctx);
                     int ps = act.dp(52);
                     FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(ps, ps);
                     plp.gravity = Gravity.CENTER;

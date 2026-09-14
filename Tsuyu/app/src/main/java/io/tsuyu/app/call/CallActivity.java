@@ -1,4 +1,6 @@
-package io.tsuyu.app.ui;
+package io.tsuyu.app.call;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.webrtc.SurfaceViewRenderer;
 
 import io.tsuyu.app.R;
+import io.tsuyu.app.ui.ChatActivity;
 import io.tsuyu.app.call.CallEngine;
 import io.tsuyu.app.call.CallService;
 import io.tsuyu.app.core.Fb;
@@ -35,7 +38,8 @@ public class CallActivity extends AppCompatActivity {
     private long startedAt = 0;
     private TextView tvSub;
     private TextView tvTimer;
-    private View answerRow, controlRow, endBtn, muteBtn, videoBtn, localBox;
+    private View answerRow, controlRow, endBtn, muteBtn, videoBtn;
+    private FrameLayout localBox;
     private boolean ended = false;
 
     private final Runnable timerTick = new Runnable() {
@@ -121,7 +125,8 @@ public class CallActivity extends AppCompatActivity {
 
         updatePhase("ringing");
 
-        Fb.fb().getReference("calls/" + callId).addValueEventListener((snap, err) -> {
+        Fb.fb().getReference("calls/" + callId).addValueEventListener(new ValueEventListener() {
+                    @Override public void onDataChange(@androidx.annotation.NonNull com.google.firebase.database.DataSnapshot snap) {
             try {
                 if (snap == null || snap.getValue() == null) return;
                 JSONObject d = snap.getValue(JSONObject.class);
@@ -149,7 +154,9 @@ public class CallActivity extends AppCompatActivity {
             } catch (Throwable t) {
                 t.printStackTrace();
             }
-        });
+                    }
+                    @Override public void onCancelled(@androidx.annotation.NonNull com.google.firebase.database.DatabaseError error) {}
+                });
     }
 
     private void updatePhase(String phase) {
@@ -177,7 +184,7 @@ public class CallActivity extends AppCompatActivity {
         try {
             CallService.startEngine();
             JSONObject d = new JSONObject().put("st", "accepted");
-            Fb.fb().getReference("calls/" + callId).updateChildren(d.toMap());
+            Fb.fb().getReference("calls/" + callId).updateChildren(Fb.toMap(d));
         } catch (Throwable t) {
             t.printStackTrace();
         }

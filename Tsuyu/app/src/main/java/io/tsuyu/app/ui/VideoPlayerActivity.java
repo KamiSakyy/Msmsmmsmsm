@@ -30,13 +30,13 @@ public class VideoPlayerActivity extends AppCompatActivity {
         player = new ExoPlayer.Builder(this).build();
         pv.setPlayer(player);
         if (circle) {
-            pv.setControllerVisibility(com.google.android.exoplayer2.ui.PlayerControlView.VISIBILITY_GONE);
+            pv.setUseController(false);
         }
         if (path != null) {
             MediaItem item = MediaItem.fromUri("file://" + path);
             player.setMediaItem(item);
             player.prepare();
-            player.playWhenReady = true;
+            player.setPlayWhenReady(true);
         }
         findViewById(R.id.btnVideoClose).setOnClickListener(v -> finish());
     }

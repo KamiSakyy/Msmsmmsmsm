@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements BgService.ChatLis
             if (on) {
                 com.google.firebase.database.FirebaseDatabase.getInstance()
                         .getReference("users/" + myUid)
-                        .updateChildren(new JSONObject().put("online", false).put("lastSeen", System.currentTimeMillis()).toMap());
+                        .updateChildren(Fb.toMap(new JSONObject().put("online", false).put("lastSeen", System.currentTimeMillis())));
             } else {
                 Fb.setPresence(this, true);
             }
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements BgService.ChatLis
             TextView status = findViewById(R.id.tvDrawerStatus);
             ImageView iv = findViewById(R.id.ivDrawerAvatar);
             TextView letter = findViewById(R.id.tvDrawerLetter);
-            View bg = findViewById(R.id.drawerAvatarWrap).getChildAt(0);
+            View bg = ((ViewGroup) findViewById(R.id.drawerAvatarWrap)).getChildAt(0);
             if (u != null) {
                 name.setText(u.displayName());
                 username.setText(u.username != null ? "@" + u.username : "");
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements BgService.ChatLis
                     .addChildEventListener(new ChildEventListener() {
                         @Override public void onChildAdded(DataSnapshot ds, String prev) { recountUnread(chatId); }
                         @Override public void onChildChanged(DataSnapshot ds, String prev) { recountUnread(chatId); }
-                        @Override public void onChildRemoved(DataSnapshot ds, String prev) { recountUnread(chatId); }
+                        @Override public void onChildRemoved(DataSnapshot ds) { recountUnread(chatId); }
                         @Override public void onChildMoved(DataSnapshot ds, String prev) {}
                         @Override public void onCancelled(DatabaseError e) {}
                     });
@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements BgService.ChatLis
                 TextView status = v.findViewById(R.id.tvStatus);
                 ImageView iv = v.findViewById(R.id.ivAvatar);
                 TextView letter = v.findViewById(R.id.tvLetter);
-                View bg = ((ViewGroup) v.getChildAt(0)).getChildAt(0);
+                View bg = ((ViewGroup) v).getChildAt(0).getChildAt(0);
                 name.setText(u.displayName());
                 username.setText(u.username != null ? "@" + u.username : "");
                 status.setText(u.online ? "в сети" : "");

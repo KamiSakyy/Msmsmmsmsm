@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.ViewGroup;
@@ -58,7 +59,7 @@ public class ForwardActivity extends AppCompatActivity {
             TextView un = h.itemView.findViewById(R.id.tvUsername);
             TextView sub = h.itemView.findViewById(R.id.tvStatus);
             View dot = h.itemView.findViewById(R.id.dot);
-            View bgView = ((ViewGroup) h.itemView.getChildAt(0)).getChildAt(0);
+            View bgView = ((ViewGroup) h.itemView).getChildAt(0).getChildAt(0);
             TextView letterV = h.itemView.findViewById(R.id.tvLetter);
             ImageView ivV = h.itemView.findViewById(R.id.ivAvatar);
             Ui.setAvatar(ivV, bgView, letterV, it.u);
@@ -81,7 +82,7 @@ public class ForwardActivity extends AppCompatActivity {
         RecyclerView rv = findViewById(R.id.recycler);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
-        findViewById(R.id.etSearch).addTextChangedListener(new android.text.TextWatcher() {
+        ((EditText) findViewById(R.id.etSearch)).addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) {
                 try {
@@ -109,10 +110,8 @@ public class ForwardActivity extends AppCompatActivity {
                 allRows.clear();
                 for (DataSnapshot ds : s.getChildren()) {
                     String cid = ds.getKey();
-                    String[] ids = Fb.otherOf(cid);
-                    if (ids.length < 2 || ids[0].equals(Fb.myUid()) == false && ids[1].equals(Fb.myUid()) == false) continue;
-                    String other = ids[0].equals(Fb.myUid()) ? ids[1] : ids[0];
-                    if (other.equals(Fb.myUid())) continue;
+                    String other = Fb.otherOf(cid);
+                    if (other == null || other.equals(Fb.myUid())) continue;
                     MeowUser u = Fb.userCache.get(other);
                     FwItem it = new FwItem();
                     it.uid = other;
@@ -187,7 +186,7 @@ public class ForwardActivity extends AppCompatActivity {
                     patch.put("last/ty", ty);
                     patch.put("last/by", fromUid);
                     patch.put("last/k", key);
-                    Fb.fb().getReference("chats/" + cid).updateChildren(patch.toMap());
+                    Fb.fb().getReference("chats/" + cid).updateChildren(Fb.toMap(patch));
                     BgService.writeMyChat(cid);
                     runOnUiThread(() -> {
                         Ui.toast(ForwardActivity.this, "Переслано ✓");

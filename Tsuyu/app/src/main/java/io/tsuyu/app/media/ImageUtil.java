@@ -35,7 +35,7 @@ public class ImageUtil {
             // EXIF rotation
             int rotation = 0;
             try {
-                ExifInterface ex = new ExifInterface(ctx, uri);
+                ExifInterface ex = ExifInterface.fromUri(ctx, uri);
                 int orient = ex.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                 switch (orient) {
                     case ExifInterface.ORIENTATION_ROTATE_90: rotation = 90; break;

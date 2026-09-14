@@ -284,7 +284,7 @@ public class CallEngine {
         try {
             JSONObject d = new JSONObject();
             d.put(CallService.outgoing ? "offer" : "answer", s.description);
-            Fb.fb().getReference("calls/" + CallService.callId).updateChildren(d.toMap());
+            Fb.fb().getReference("calls/" + CallService.callId).updateChildren(Fb.toMap(d));
             Log.i(TAG, "published " + s.type + " len=" + s.description.length());
         } catch (Throwable t) {
             Log.e(TAG, "publishSignal", t);
@@ -347,7 +347,7 @@ public class CallEngine {
             JSONObject d = new JSONObject();
             String key = CallService.outgoing ? "iceF" : "iceT";
             d.put(key, c.sdpMid() + "|" + c.sdpLine() + "|" + c.candidate());
-            Fb.fb().getReference("calls/" + CallService.callId).updateChildren(d.toMap());
+            Fb.fb().getReference("calls/" + CallService.callId).updateChildren(Fb.toMap(d));
             Log.i(TAG, "ice published " + key + " mid=" + c.sdpMid() + " line=" + c.sdpLine());
         } catch (Throwable t) {
             Log.e(TAG, "onLocalIce", t);
@@ -363,7 +363,7 @@ public class CallEngine {
                 try {
                     JSONObject d = new JSONObject();
                     d.put("muteF", localMuted);
-                    Fb.fb().getReference("calls/" + CallService.callId).updateChildren(d.toMap());
+                    Fb.fb().getReference("calls/" + CallService.callId).updateChildren(Fb.toMap(d));
                 } catch (Throwable ignored) {}
             } catch (Throwable t) {
                 Log.e(TAG, "toggleMute", t);
@@ -389,7 +389,7 @@ public class CallEngine {
             JSONObject d = new JSONObject();
             d.put("st", "active");
             d.put("startTs", System.currentTimeMillis());
-            Fb.fb().getReference("calls/" + CallService.callId).updateChildren(d.toMap());
+            Fb.fb().getReference("calls/" + CallService.callId).updateChildren(Fb.toMap(d));
         } catch (Throwable t) {
             Log.e(TAG, "markActive", t);
         }
@@ -403,7 +403,7 @@ public class CallEngine {
                 d.put("endTs", System.currentTimeMillis());
                 d.put("reason", reason);
                 d.put("durMs", ms);
-                Fb.fb().getReference("calls/" + CallService.callId).updateChildren(d.toMap());
+                Fb.fb().getReference("calls/" + CallService.callId).updateChildren(Fb.toMap(d));
             }
         } catch (Throwable ignored) {}
         state = ST_ENDED;
