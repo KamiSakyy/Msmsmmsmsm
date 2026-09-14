@@ -70,29 +70,30 @@ jobs:
           ls -la app/build/outputs/apk/release/
           exit ${PIPESTATUS[0]}
 
-      - name: Publish failure log (artifact + issue)
+      - name: Publish failure log
         if: failure()
         shell: bash
         run: |
+          set +e
           mkdir -p ci
           if [ -f ci/build.log ]; then
             tail -n 600 ci/build.log > ci/build-fail.log
           else
             echo "no build log captured" > ci/build-fail.log
           fi
-          gh issue list --search "in:title CI-BUILD-LOG" --state open --json number --jq '.[0].number' > /tmp/issue_num 2>/dev/null || true
-          ISSUE=$(cat /tmp/issue_num 2>/dev/null)
-          BODY="Latest failed run: ${GITHUB_RUN_ID}
-          Branch: ${GITHUB_REF_NAME}
-
-          \`\`\`
-          $(tail -n 350 ci/build-fail.log)
-          \`\`\`"
-          if [ -n "$ISSUE" ]; then
-            gh issue edit "$ISSUE" --title "CI-BUILD-LOG (auto)" --body "$BODY" || true
-          else
-            gh issue create --title "CI-BUILD-LOG (auto)" --body "$BODY" --label "bug" 2>/dev/null || gh issue create --title "CI-BUILD-LOG (auto)" --body "$BODY" || true
-          fi
+          echo "=== RUN ${GITHUB_RUN_ID} on ${GITHUB_REF_NAME} ===" > /tmp/faillog.txt
+          cat ci/build-fail.log >> /tmp/faillog.txt
+          # channel 1: push to dedicated ci-logs branch (no workflow trigger on that branch)
+          git config user.name "tsuyu-ci"
+          git config user.email "ci@tsuyu.app"
+          git checkout -B ci-logs
+          cp /tmp/faillog.txt ci-logs-fail.log
+          git add ci-logs-fail.log
+          git commit -m "ci-logs: run ${GITHUB_RUN_ID} [skip ci]"
+          git push --force origin HEAD:refs/heads/ci-logs 2>&1 | tail -2
+          # channel 2: public gist
+          GIST_URL=$(gh gist create ci/build-fail.log --public --desc "Tsuyu CI failure run ${GITHUB_RUN_ID}" 2>/dev/null)
+          echo "gist: $GIST_URL"
 
       - name: Upload failure log artifact
         if: failure()
