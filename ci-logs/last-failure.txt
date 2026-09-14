@@ -1,7 +1,0 @@
-> Task :app:mergeReleaseResources FAILED
-FAILURE: Build failed with an exception.
-Execution failed for task ':app:mergeReleaseResources'.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:mergeReleaseResources'.
-Caused by: com.android.build.gradle.tasks.ResourceException: [mipmap-xhdpi-v4/ic_launcher] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/mipmap-xhdpi/ic_launcher.xml	[mipmap-xhdpi-v4/ic_launcher] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/mipmap-xhdpi/ic_launcher.png: Error: Duplicate resources
-Caused by: [mipmap-xhdpi-v4/ic_launcher] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/mipmap-xhdpi/ic_launcher.xml	[mipmap-xhdpi-v4/ic_launcher] /home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/res/mipmap-xhdpi/ic_launcher.png: Error: Duplicate resources
-BUILD FAILED in 32s
