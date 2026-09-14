@@ -70,22 +70,37 @@ jobs:
           ls -la app/build/outputs/apk/release/
           exit ${PIPESTATUS[0]}
 
-      - name: Publish failure log
+      - name: Publish failure log (artifact + issue)
         if: failure()
         shell: bash
         run: |
-          git config user.name "tsuyu-ci"
-          git config user.email "ci@tsuyu.app"
           mkdir -p ci
           if [ -f ci/build.log ]; then
-            # keep the log small: last 400 lines
-            tail -n 400 ci/build.log > ci/build-fail.log
+            tail -n 600 ci/build.log > ci/build-fail.log
           else
             echo "no build log captured" > ci/build-fail.log
           fi
-          git add ci/build-fail.log
-          git commit -m "ci: failure log [skip ci]" || echo "nothing to commit"
-          git push origin HEAD:refs/heads/${GITHUB_REF#refs/heads/} || echo "push failed"
+          gh issue list --search "in:title CI-BUILD-LOG" --state open --json number --jq '.[0].number' > /tmp/issue_num 2>/dev/null || true
+          ISSUE=$(cat /tmp/issue_num 2>/dev/null)
+          BODY="Latest failed run: ${GITHUB_RUN_ID}
+          Branch: ${GITHUB_REF_NAME}
+
+          \`\`\`
+          $(tail -n 350 ci/build-fail.log)
+          \`\`\`"
+          if [ -n "$ISSUE" ]; then
+            gh issue edit "$ISSUE" --title "CI-BUILD-LOG (auto)" --body "$BODY" || true
+          else
+            gh issue create --title "CI-BUILD-LOG (auto)" --body "$BODY" --label "bug" 2>/dev/null || gh issue create --title "CI-BUILD-LOG (auto)" --body "$BODY" || true
+          fi
+
+      - name: Upload failure log artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-failure
+          path: ci/build-fail.log
+          if-no-files-found: ignore
 
       - name: Rename APK
         shell: bash

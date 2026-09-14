@@ -254,6 +254,20 @@ public class CircleRecorderActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 210) {
+            boolean ok = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (ok && camera == null) {
+                textureView.getSurfaceTexture();
+                if (textureView.isAvailable()) openCamera();
+            } else if (ok == false) {
+                Ui.toast(this, "Нет доступа к камере");
+            }
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         recording = false;

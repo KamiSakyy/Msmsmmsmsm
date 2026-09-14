@@ -122,7 +122,7 @@ public class Notifier {
                     .setWhen(System.currentTimeMillis())
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                     .addAction(new NotificationCompat.Action.Builder(
-                            androidx.appcompat.R.drawable.abc_ic_ab_back_material,
+                            R.drawable.ic_reply,
                             "Ответить", piReply)
                             .addRemoteInput(new RemoteInput.Builder("reply_text")
                                     .setLabel("Ответить")
