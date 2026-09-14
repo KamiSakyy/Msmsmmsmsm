@@ -51,6 +51,36 @@ jobs:
           ln -sf /opt/gradle-8.7/bin/gradle /usr/local/bin/gradle
           gradle --version
 
+      - name: Verify compile inputs
+        shell: bash
+        run: |
+          set +e
+          cd Tsuyu
+          gradle :app:dependencies --configuration releaseCompileClasspath > /dev/null 2>&1
+          echo "=== platform android-34 ==="
+          PJ="$ANDROID_SDK_ROOT/platforms/android-34/android.jar"
+          ls -la "$PJ" 2>/dev/null
+          echo "total entries: $(jar tf "$PJ" 2>/dev/null | grep -c class)"
+          echo "app/Notification.class: $(jar tf "$PJ" 2>/dev/null | grep -c '^android/app/Notification.class$')"
+          echo "app/RemoteInput.class: $(jar tf "$PJ" 2>/dev/null | grep -c '^android/app/RemoteInput.class$')"
+          echo "SimpleOnDoubleTapListener: $(jar tf "$PJ" 2>/dev/null | grep -c 'SimpleOnDoubleTapListener')"
+          echo "hardware/camera2: $(jar tf "$PJ" 2>/dev/null | grep -c 'hardware/camera2')"
+          echo "=== webrtc aar ==="
+          AAR=$(find ~/.gradle/caches -name "webrtc-124.0.0.aar" 2>/dev/null | head -1)
+          echo "aar: $AAR"
+          if [ -n "$AAR" ]; then
+            mkdir -p /tmp/aarx && cd /tmp/aarx
+            unzip -o -q "$AAR"
+            echo "aar top-level:"; ls
+            if [ -f classes.jar ]; then
+              echo "classes.jar total: $(jar tf classes.jar | grep -c class)"
+              echo "  android/: $(jar tf classes.jar | grep -c '^android/')"
+              echo "  androidx/: $(jar tf classes.jar | grep -c '^androidx/')"
+              echo "  org/webrtc/: $(jar tf classes.jar | grep -c '^org/webrtc/')"
+              echo "  android/app/Notification.class: $(jar tf classes.jar | grep -c '^android/app/Notification.class$')"
+            fi
+          fi
+
       - name: Build release APK
         working-directory: Tsuyu
         shell: bash
