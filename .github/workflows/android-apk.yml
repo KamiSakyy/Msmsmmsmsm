@@ -5,6 +5,10 @@ on:
     branches: [ main, "arena/**" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  issues: write
+
 concurrency:
   group: tsuyu-apk
   cancel-in-progress: true
@@ -116,6 +120,21 @@ jobs:
         with:
           name: Tsuyu-v1.0.0
           path: release/Tsuyu-v1.0.0.apk
+
+      - name: Snapshot sources to handof/
+        shell: bash
+        run: |
+          set +e
+          mkdir -p handof
+          cd Tsuyu
+          zip -rq ../handof/Tsuyu-src-run${GITHUB_RUN_NUMBER}.zip . -x "*/build/*" "*/.gradle/*"
+          cd ..
+          git config user.name "tsuyu-ci"
+          git config user.email "ci@tsuyu.app"
+          git add -f handof
+          git commit -m "handof: source snapshot run ${GITHUB_RUN_NUMBER} [skip ci]" || echo "no changes"
+          git pull --rebase origin HEAD 2>/dev/null || true
+          git push origin HEAD:refs/heads/${GITHUB_REF#refs/heads/} || echo "push failed"
 
       - name: Publish to GitHub Release
         if: github.event_name != 'pull_request'
