@@ -31,7 +31,11 @@ jobs:
       - name: Install Android SDK
         shell: bash
         run: |
-          set -e
+          set +e
+          set -o pipefail
+          mkdir -p ci
+          {
+          set -x
           export ANDROID_HOME=$ANDROID_SDK_ROOT
           unset ANDROID_HOME_ORIG
           mkdir -p $ANDROID_HOME/cmdline-tools
@@ -47,17 +51,20 @@ jobs:
           yes | $SM --licenses > /dev/null 2>&1 || true
           good_jar() { [ -f "$1" ] && unzip -l "$1" 2>/dev/null | grep -q "hardware/camera2/CameraCaptureRequest.class"; }
           PICK=""; PICKSDK=""
-          # 1) probe platforms already on the runner (incl. ext variants)
-          for d in "$ANDROID_HOME"/platforms/android-3[0-9]*; do
-            [ -f "$d/android.jar" ] || continue
-            if good_jar "$d/android.jar"; then
-              PICK="$d/android.jar"
-              PICKSDK=$(basename "$d" | sed 's/android-//; s/-ext.*//')
-              echo "found good preinstalled platform: $d"
-              break
-            fi
+          # 1) probe every platform dir on the runner (incl. ext variants, any jar)
+          for d in "$ANDROID_HOME"/platforms/android-*; do
+            [ -d "$d" ] || continue
+            for jar in "$d"/*.jar "$d"/*/android.jar; do
+              [ -f "$jar" ] || continue
+              if good_jar "$jar"; then
+                PICK="$jar"
+                PICKSDK=$(basename "$d" | sed 's/android-//; s/-ext.*//')
+                echo "FOUND good preinstalled jar: $jar (api $PICKSDK)"
+                break 2
+              fi
+            done
           done
-          # 2) else try fresh installs 34 -> 30
+          # 2) fresh installs 34 -> 32
           if [ -z "$PICK" ]; then
             for ver in 34 33 32; do
               rm -rf "$ANDROID_HOME/platforms/android-$ver"
@@ -65,28 +72,44 @@ jobs:
               if good_jar "$ANDROID_HOME/platforms/android-$ver/android.jar"; then
                 PICK="$ANDROID_HOME/platforms/android-$ver/android.jar"
                 PICKSDK=$ver
-                echo "fresh install OK: android-$ver"
+                echo "FOUND good fresh install: android-$ver"
+                break
+              fi
+            done
+          fi
+          # 3) robolectric android-all (full AOSP jars on Maven Central)
+          if [ -z "$PICK" ]; then
+            for spec in "14-robolectric-10818077:34" "15-robolectric-12650502:35"; do
+              V=${spec%%:*}; SDKV=${spec##*:}
+              curl -sSL -o /tmp/android-all.jar "https://repo1.maven.org/maven2/org/robolectric/android-all/$V/android-all-$V.jar" || continue
+              if good_jar /tmp/android-all.jar; then
+                mkdir -p "$ANDROID_HOME/platforms/android-$SDKV"
+                cp /tmp/android-all.jar "$ANDROID_HOME/platforms/android-$SDKV/android.jar"
+                PICK="$ANDROID_HOME/platforms/android-$SDKV/android.jar"
+                PICKSDK=$SDKV
+                echo "FOUND good robolectric jar: $V (api $SDKV)"
                 break
               fi
             done
           fi
           if [ -z "$PICK" ]; then
-            echo "FATAL: no usable android.jar (probe: preinstalled + fresh 34/33/32)"
+            echo "FATAL: no usable android.jar anywhere"
             for d in "$ANDROID_HOME"/platforms/android-*; do
-              [ -f "$d/android.jar" ] && echo "  $d size=$(stat -c%s "$d/android.jar") camera2=$(unzip -l "$d/android.jar" | grep -c 'CameraCaptureRequest')"
+              [ -f "$d/android.jar" ] || continue
+              echo "BROKEN $d size=$(stat -c%s "$d/android.jar") android_entries=$(unzip -l "$d/android.jar" 2>/dev/null | grep -c 'android/') sample=$(unzip -l "$d/android.jar" 2>/dev/null | grep 'android/' | head -3 | tr '\n' ' ')"
             done
             exit 1
           fi
-          # normalize to the plain platforms/android-<ver> dir
           TARGET="$ANDROID_HOME/platforms/android-$PICKSDK"
           if [ "$PICK" != "$TARGET/android.jar" ]; then
             rm -rf "$TARGET"
             mkdir -p "$TARGET"
             cp "$PICK" "$TARGET/android.jar"
           fi
-          echo "USING compileSdk=$PICKSDK"
+          echo "USING compileSdk=$PICKSDK jar=$TARGET/android.jar"
           echo "TSUYU_SDK=$PICKSDK" >> "$GITHUB_ENV"
           $SM --install "platform-tools" "build-tools;34.0.0" > /dev/null 2>&1 || true
+          } 2>&1 | tee ci/sdk.log
 
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -170,6 +193,7 @@ jobs:
             echo "no build log captured" > ci/build-fail.log
           fi
           echo "=== RUN ${GITHUB_RUN_ID} on ${GITHUB_REF_NAME} ===" > /tmp/faillog.txt
+          if [ -f ci/sdk.log ]; then echo "--- SDK STEP ---" >> /tmp/faillog.txt; tail -n 200 ci/sdk.log >> /tmp/faillog.txt; fi
           if [ -f ci/diag.log ]; then echo "--- DIAGNOSTICS ---" >> /tmp/faillog.txt; cat ci/diag.log >> /tmp/faillog.txt; fi
           echo "--- BUILD LOG ---" >> /tmp/faillog.txt
           cat ci/build-fail.log >> /tmp/faillog.txt
