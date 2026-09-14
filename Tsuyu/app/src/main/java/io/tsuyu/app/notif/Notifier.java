@@ -47,9 +47,9 @@ public class Notifier {
 
     public static void requestPermission(android.app.Activity act) {
         if (Build.VERSION.SDK_INT >= 33) {
-            if (act.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+            if (act.checkSelfPermission("android.permission.POST_NOTIFICATIONS")
                     != PackageManager.PERMISSION_GRANTED) {
-                act.requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+                act.requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 101);
             }
         }
     }

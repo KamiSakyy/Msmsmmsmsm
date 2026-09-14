@@ -36,26 +36,57 @@ jobs:
           unset ANDROID_HOME_ORIG
           mkdir -p $ANDROID_HOME/cmdline-tools
           cd $ANDROID_HOME/cmdline-tools
-          curl -sSL -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q tools.zip
-          mv cmdline-tools latest
-          rm tools.zip
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
-          # runner image may ship a broken/partial platform jar — force clean reinstall
-          rm -rf "$ANDROID_HOME/platforms/android-34" "$ANDROID_HOME/build-tools/34.0.0"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
-            "platform-tools" \
-            "platforms;android-34" \
-            "build-tools;34.0.0"
-          JAR="$ANDROID_HOME/platforms/android-34/android.jar"
-          ls -la "$JAR"
-          if ! unzip -l "$JAR" | grep -q "hardware/camera2/CameraCaptureRequest.class"; then
-            echo "!!! android-34 jar is BROKEN (no camera2) — reinstalling once more"
-            rm -rf "$ANDROID_HOME/platforms/android-34"
-            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
-            unzip -l "$JAR" | grep -q "hardware/camera2/CameraCaptureRequest.class" || { echo "FATAL: platform-34 jar still broken"; exit 1; }
+          if [ ! -d latest/bin ]; then
+            rm -rf cmdline-tools
+            curl -sSL -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            unzip -q tools.zip
+            mv cmdline-tools latest
+            rm tools.zip
           fi
-          echo "platform-34 jar OK: $(unzip -l "$JAR" | grep -c 'camera2') camera2 classes"
+          SM=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
+          yes | $SM --licenses > /dev/null 2>&1 || true
+          good_jar() { [ -f "$1" ] && unzip -l "$1" 2>/dev/null | grep -q "hardware/camera2/CameraCaptureRequest.class"; }
+          PICK=""; PICKSDK=""
+          # 1) probe platforms already on the runner (incl. ext variants)
+          for d in "$ANDROID_HOME"/platforms/android-3[0-9]*; do
+            [ -f "$d/android.jar" ] || continue
+            if good_jar "$d/android.jar"; then
+              PICK="$d/android.jar"
+              PICKSDK=$(basename "$d" | sed 's/android-//; s/-ext.*//')
+              echo "found good preinstalled platform: $d"
+              break
+            fi
+          done
+          # 2) else try fresh installs 34 -> 30
+          if [ -z "$PICK" ]; then
+            for ver in 34 33 32; do
+              rm -rf "$ANDROID_HOME/platforms/android-$ver"
+              $SM --install "platforms;android-$ver" > /dev/null 2>&1 || true
+              if good_jar "$ANDROID_HOME/platforms/android-$ver/android.jar"; then
+                PICK="$ANDROID_HOME/platforms/android-$ver/android.jar"
+                PICKSDK=$ver
+                echo "fresh install OK: android-$ver"
+                break
+              fi
+            done
+          fi
+          if [ -z "$PICK" ]; then
+            echo "FATAL: no usable android.jar (probe: preinstalled + fresh 34/33/32)"
+            for d in "$ANDROID_HOME"/platforms/android-*; do
+              [ -f "$d/android.jar" ] && echo "  $d size=$(stat -c%s "$d/android.jar") camera2=$(unzip -l "$d/android.jar" | grep -c 'CameraCaptureRequest')"
+            done
+            exit 1
+          fi
+          # normalize to the plain platforms/android-<ver> dir
+          TARGET="$ANDROID_HOME/platforms/android-$PICKSDK"
+          if [ "$PICK" != "$TARGET/android.jar" ]; then
+            rm -rf "$TARGET"
+            mkdir -p "$TARGET"
+            cp "$PICK" "$TARGET/android.jar"
+          fi
+          echo "USING compileSdk=$PICKSDK"
+          echo "TSUYU_SDK=$PICKSDK" >> "$GITHUB_ENV"
+          $SM --install "platform-tools" "build-tools;34.0.0" > /dev/null 2>&1 || true
 
       - name: Cache Gradle
         uses: actions/cache@v4
