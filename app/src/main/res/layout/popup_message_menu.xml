@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_popup_menu"
+    android:paddingVertical="6dp"
+    android:minWidth="190dp">
+
+    <!-- reaction panel -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingBottom="6dp">
+
+        <ImageView
+            android:id="@+id/reactHeart"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_circle_btn"
+            android:padding="8dp"
+            android:src="@drawable/ic_heart"
+            app:tint="#FF3B30" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="4dp"
+        android:background="#2C2C2E" />
+
+    <LinearLayout
+        android:id="@+id/menuReply"
+        style="@style/PopupItem">
+        <ImageView style="@style/PopupIcon" android:src="@drawable/ic_reply" />
+        <TextView style="@style/PopupText" android:text="Ответить" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menuEdit"
+        style="@style/PopupItem">
+        <ImageView style="@style/PopupIcon" android:src="@drawable/ic_edit" />
+        <TextView style="@style/PopupText" android:text="Редактировать" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menuForward"
+        style="@style/PopupItem">
+        <ImageView style="@style/PopupIcon" android:src="@drawable/ic_forward" />
+        <TextView style="@style/PopupText" android:text="Переслать" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menuDelete"
+        style="@style/PopupItem">
+        <ImageView style="@style/PopupIcon" android:src="@drawable/ic_delete"
+            app:tint="#FF3B30" />
+        <TextView style="@style/PopupText" android:text="Удалить"
+            android:textColor="#FF3B30" />
+    </LinearLayout>
+</LinearLayout>

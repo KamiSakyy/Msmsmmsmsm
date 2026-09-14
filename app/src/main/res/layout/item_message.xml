@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/dateSeparator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginVertical="12dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="3dp"
+        android:background="@drawable/bg_chip"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:textAllCaps="true"
+        android:letterSpacing="0.05"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/rowWrap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/bubbleColumn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:maxWidth="300dp">
+
+            <LinearLayout
+                android:id="@+id/bubble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_bubble_in"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp">
+
+                <!-- forwarded -->
+                <TextView
+                    android:id="@+id/forwarded"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:textColor="#AAAAAA"
+                    android:textSize="11sp"
+                    android:textStyle="italic"
+                    android:visibility="gone" />
+
+                <!-- reply quote -->
+                <LinearLayout
+                    android:id="@+id/replyQuote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/bg_reply_quote"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/replyQuoteName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#AAAAAA"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/replyQuoteText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textColor="#DDDDDD"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- media container -->
+                <FrameLayout
+                    android:id="@+id/mediaWrap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/mediaGrid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </FrameLayout>
+
+                <!-- circle video -->
+                <FrameLayout
+                    android:id="@+id/circleWrap"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:visibility="gone">
+
+                    <com.tsuyu.messenger.ui.CircleVideoView
+                        android:id="@+id/circleVideo"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp" />
+                </FrameLayout>
+
+                <!-- voice player -->
+                <LinearLayout
+                    android:id="@+id/voiceWrap"
+                    android:layout_width="230dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/voicePlay"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/bg_send_btn"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_play"
+                        app:tint="@color/black" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <com.tsuyu.messenger.media.WaveformView
+                            android:id="@+id/voiceWave"
+                            android:layout_width="match_parent"
+                            android:layout_height="26dp" />
+
+                        <TextView
+                            android:id="@+id/voiceTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:textColor="#AAAAAA"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- music player -->
+                <LinearLayout
+                    android:id="@+id/musicWrap"
+                    android:layout_width="280dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_music_card"
+                    android:padding="10dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/musicPlay"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/bg_music_play"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_play"
+                        app:tint="@color/white" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/musicTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:textColor="@color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/musicArtist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+
+                        <com.tsuyu.messenger.media.WaveformView
+                            android:id="@+id/musicWave"
+                            android:layout_width="match_parent"
+                            android:layout_height="16dp"
+                            android:layout_marginTop="4dp" />
+
+                        <TextView
+                            android:id="@+id/musicTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/text_tertiary"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- text -->
+                <TextView
+                    android:id="@+id/messageText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="2dp"
+                    android:visibility="gone" />
+
+                <!-- time row -->
+                <LinearLayout
+                    android:id="@+id/timeRow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/editedMark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:text="изм."
+                        android:textColor="#888888"
+                        android:textSize="10sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/messageTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#888888"
+                        android:textSize="10sp" />
+
+                    <ImageView
+                        android:id="@+id/readMark"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="3dp"
+                        android:src="@drawable/ic_check"
+                        android:visibility="gone"
+                        app:tint="#8E8E93" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- hearts -->
+            <LinearLayout
+                android:id="@+id/heartsRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-6dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_heart_pill"
+                android:paddingHorizontal="7dp"
+                android:paddingVertical="3dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:src="@drawable/ic_heart"
+                    app:tint="#FF3B30" />
+
+                <FrameLayout
+                    android:id="@+id/heartAvatars"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="5dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnMsgMenu"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="2dp"
+            android:padding="5dp"
+            android:alpha="0.5"
+            android:src="@drawable/ic_more_vert"
+            app:tint="@color/text_secondary" />
+    </LinearLayout>
+</LinearLayout>

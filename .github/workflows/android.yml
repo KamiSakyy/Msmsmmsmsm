@@ -1,0 +1,119 @@
+name: Build Tsuyu APK
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
+
+      - name: Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Generate signing keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore app/tsuyu.keystore \
+            -alias tsuyu -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass tsuyu2026 -keypass tsuyu2026 \
+            -dname "CN=Tsuyu, OU=Tsuyu, O=Tsuyu, L=Tokyo, S=Tokyo, C=JP"
+
+      - name: Set up Gradle wrapper
+        run: gradle wrapper --gradle-version 8.7 --distribution-type bin
+
+      - name: Run encryption unit tests
+        id: tests
+        run: |
+          set -o pipefail
+          ./gradlew :app:testReleaseUnitTest --stacktrace 2>&1 | tee /tmp/build.log
+
+      - name: Build release APK
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleRelease --stacktrace 2>&1 | tee -a /tmp/build.log
+
+      - name: Push failure log to branch
+        if: failure()
+        run: |
+          mkdir -p ci-logs
+          grep -E "error:|FAILURE|FAILED|Caused by|Could not|Execution failed|expected:|AssertionError|^[[:space:]]+at com\.tsuyu|^[[:space:]]+[A-Za-z0-9_.]+Exception" /tmp/build.log \
+            | head -c 60000 > ci-logs/last-failure.txt || tail -c 30000 /tmp/build.log > ci-logs/last-failure.txt
+          tail -c 30000 /tmp/build.log > ci-logs/tail.txt
+          git config user.name "CI"
+          git config user.email "ci@tsuyu"
+          git add -f ci-logs
+          git commit -m "ci: failure log for run ${{ github.run_number }} [skip ci]" || exit 0
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/release/app-release.apk out/Tsuyu-${{ github.run_number }}.apk
+          cp app/build/outputs/apk/release/app-release.apk out/Tsuyu.apk
+          cp app/build/outputs/apk/release/app-release.apk out/Tsuyu-Messenger.apk
+
+      - name: Snapshot sources to handof/
+        run: |
+          mkdir -p handof
+          git archive --format=zip -o "handof/Tsuyu-v1.0.${{ github.run_number }}-src.zip" HEAD
+          git config user.name "CI"
+          git config user.email "ci@tsuyu"
+          git add -f handof
+          git commit -m "handof: source snapshot v1.0.${{ github.run_number }} [skip ci]" || exit 0
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tsuyu-APK
+          path: out/*.apk
+          retention-days: 90
+
+      - name: Upload unit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/
+          retention-days: 14
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        if: always()
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Tsuyu v1.0.${{ github.run_number }}
+          body: |
+            Tsuyu — сквозной мессенджер (Signal Double Ratchet + X3DH, Firebase RTDB, WebRTC).
+            Скачайте `Tsuyu.apk` и установите на Android 7.0+.
+          files: out/*.apk
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

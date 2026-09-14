@@ -1,11 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Tsuyu</string>
-    <string name="channel_messages">Tsuyu Сообщения</string>
-    <string name="channel_messages_desc">Уведомления о новых зашифрованных сообщениях</string>
-    <string name="channel_calls">Tsuyu Звонки</string>
-    <string name="channel_calls_desc">Уведомления о входящих аудио и видеозвонках</string>
-    <string name="channel_service">Фоновый сервис Tsuyu</string>
-    <string name="channel_service_desc">Поддержание постоянного E2EE соединения</string>
-    <string name="reply_label">Ответить...</string>
-    <string name="reply_action">Ответить</string>
+    <string name="e2e_badge">Сквозное шифрование</string>
+    <string name="email">Почта</string>
+    <string name="password">Пароль</string>
+    <string name="login">Войти</string>
+    <string name="register">Создать аккаунт</string>
+    <string name="username">Юз (@username)</string>
+    <string name="name">Имя</string>
+    <string name="bio">Описание</string>
+    <string name="search_hint">Поиск по юзу…</string>
+    <string name="message_hint">Сообщение</string>
+    <string name="settings">Настройки</string>
+    <string name="customization">Кастомизация</string>
+    <string name="privacy">Конфиденциальность</string>
+    <string name="keys">Ключи шифрования</string>
+    <string name="ghost_mode">Режим призрака</string>
+    <string name="reply">Ответить</string>
+    <string name="edit">Редактировать</string>
+    <string name="delete">Удалить</string>
+    <string name="forward">Переслать</string>
+    <string name="delete_both">Удалить у обоих</string>
 </resources>
