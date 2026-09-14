@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   build:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -61,14 +62,30 @@ jobs:
 
       - name: Build release APK
         working-directory: Tsuyu
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
         shell: bash
         run: |
-          set -e
           export PATH=$ANDROID_HOME/platform-tools:$PATH
-          gradle assembleRelease --no-daemon --stacktrace
+          mkdir -p ../ci
+          gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee ../ci/build.log
           ls -la app/build/outputs/apk/release/
+          exit ${PIPESTATUS[0]}
+
+      - name: Publish failure log
+        if: failure()
+        shell: bash
+        run: |
+          git config user.name "tsuyu-ci"
+          git config user.email "ci@tsuyu.app"
+          mkdir -p ci
+          if [ -f ci/build.log ]; then
+            # keep the log small: last 400 lines
+            tail -n 400 ci/build.log > ci/build-fail.log
+          else
+            echo "no build log captured" > ci/build-fail.log
+          fi
+          git add ci/build-fail.log
+          git commit -m "ci: failure log [skip ci]" || echo "nothing to commit"
+          git push origin HEAD:refs/heads/${GITHUB_REF#refs/heads/} || echo "push failed"
 
       - name: Rename APK
         shell: bash
