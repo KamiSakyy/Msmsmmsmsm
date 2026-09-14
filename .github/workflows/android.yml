@@ -76,6 +76,17 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk out/Tsuyu-${{ github.run_number }}.apk
           cp app/build/outputs/apk/release/app-release.apk out/Tsuyu.apk
 
+      - name: Snapshot sources to handof/
+        run: |
+          mkdir -p handof
+          git archive --format=zip -o "handof/Tsuyu-v1.0.${{ github.run_number }}-src.zip" HEAD
+          git config user.name "CI"
+          git config user.email "ci@tsuyu"
+          git add -f handof
+          git commit -m "handof: source snapshot v1.0.${{ github.run_number }} [skip ci]" || exit 0
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push origin HEAD:${{ github.ref_name }}
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
