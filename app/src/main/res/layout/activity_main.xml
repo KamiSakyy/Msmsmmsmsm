@@ -13,22 +13,22 @@
         android:orientation="vertical"
         android:background="@color/bg">
 
-        <!-- Header -->
+        <!-- Header (Clean Meow OLED style, no right avatar) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="14dp"
             android:background="@color/bg_header">
 
             <ImageView
                 android:id="@+id/btnDrawerMenu"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="10dp"
                 android:background="@drawable/bg_circle_btn"
-                android:padding="9dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_menu"
                 app:tint="@color/white" />
 
@@ -40,34 +40,17 @@
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.06" />
+                android:letterSpacing="0.08" />
 
+            <!-- Ghost Mode quick toggle / indicator in header -->
             <ImageView
                 android:id="@+id/btnGhost"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:layout_marginEnd="6dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="@drawable/bg_circle_btn"
-                android:padding="8dp"
+                android:padding="9dp"
                 android:src="@drawable/ic_ghost"
                 app:tint="@color/text_secondary" />
-
-            <ImageView
-                android:id="@+id/btnSettings"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:layout_marginEnd="6dp"
-                android:background="@drawable/bg_circle_btn"
-                android:padding="8dp"
-                android:src="@drawable/ic_settings"
-                app:tint="@color/text_secondary" />
-
-            <ImageView
-                android:id="@+id/btnProfile"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:background="@drawable/bg_avatar"
-                android:scaleType="centerCrop" />
         </LinearLayout>
 
         <!-- Search Bar -->
@@ -75,8 +58,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/bg_header"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="8dp">
+            android:paddingHorizontal="14dp"
+            android:paddingBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -124,8 +107,8 @@
             android:layout_height="wrap_content"
             android:background="@color/bg_header"
             android:scrollbars="none"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="8dp">
+            android:paddingHorizontal="14dp"
+            android:paddingBottom="10dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -215,13 +198,13 @@
         </FrameLayout>
     </LinearLayout>
 
-    <!-- Side Navigation Drawer (Meow Style) -->
+    <!-- Side Navigation Drawer (Authentic Meow Style with All Settings inside) -->
     <LinearLayout
         android:id="@+id/navDrawer"
-        android:layout_width="310dp"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#141416"
+        android:background="#0A0A0C"
         android:orientation="vertical">
 
         <!-- Drawer Header -->
@@ -229,28 +212,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#1C1C1E"
+            android:background="#161618"
             android:padding="20dp">
 
             <FrameLayout
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
                 android:layout_marginBottom="12dp">
 
                 <ImageView
                     android:id="@+id/drawerAvatar"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
+                    android:layout_width="74dp"
+                    android:layout_height="74dp"
                     android:background="@drawable/bg_avatar"
                     android:scaleType="centerCrop" />
 
                 <ImageView
                     android:id="@+id/drawerAvatarEdit"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="bottom|end"
                     android:background="@drawable/bg_send_btn"
-                    android:padding="4dp"
+                    android:padding="5dp"
                     android:src="@drawable/ic_camera"
                     app:tint="@color/black" />
             </FrameLayout>
@@ -260,7 +243,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="18sp"
+                android:textSize="19sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -275,132 +258,244 @@
                 android:id="@+id/drawerOnlineStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:text="● в сети"
                 android:textColor="@color/green"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/drawerBio"
+            <!-- Editable Bio Box -->
+            <LinearLayout
+                android:id="@+id/drawerBioWrap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Нажмите, чтобы изменить описание..."
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:maxLines="2"
-                android:ellipsize="end" />
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_drawer_bio"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:id="@+id/drawerBio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Нажмите, чтобы изменить описание..."
+                    android:textColor="#CCCCCC"
+                    android:textSize="12sp"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/ic_edit"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Drawer Items -->
+        <!-- Drawer Settings & Options List -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingVertical="8dp">
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:id="@+id/drawerRowStealth"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_ghost" />
-                    <TextView style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Режим «Не читать»" />
-                    <Switch
-                        android:id="@+id/drawerSwitchStealth"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                <!-- Section: Режимы и приватность -->
+                <TextView style="@style/SectionTitle" android:text="Приватность и режимы" />
+
+                <LinearLayout style="@style/Card">
+                    <!-- Режим призрака -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowGhost"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_ghost" app:tint="@color/white" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView style="@style/TsuyuSettingLabel" android:text="Режим призрака" />
+                            <TextView style="@style/PrivacyValue" android:text="Невидимка • скрыть онлайн" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/drawerSwitchGhost"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="@color/white"
+                            android:trackTint="@color/card_border" />
+                    </LinearLayout>
+
+                    <!-- Режим «Не читать» -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowStealthRead"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_check_double" app:tint="@color/white" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView style="@style/TsuyuSettingLabel" android:text="Режим «Не читать»" />
+                            <TextView style="@style/PrivacyValue" android:text="Не отправлять отметки прочтения" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/drawerSwitchStealth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="@color/white"
+                            android:trackTint="@color/card_border" />
+                    </LinearLayout>
+
+                    <!-- Защита экрана -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowSecureScreen"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_lock" app:tint="@color/white" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView style="@style/TsuyuSettingLabel" android:text="Защита экрана" />
+                            <TextView style="@style/PrivacyValue" android:text="Блокировать снимки экрана" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/drawerSwitchSecure"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="@color/white"
+                            android:trackTint="@color/card_border" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/drawerRowSound"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_bell" />
-                    <TextView style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Звук уведомлений" />
-                    <Switch
-                        android:id="@+id/drawerSwitchSound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                <!-- Section: Оповещения -->
+                <TextView style="@style/SectionTitle" android:text="Уведомления и звук" />
+
+                <LinearLayout style="@style/Card">
+                    <!-- Звук уведомлений -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowSound"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_bell" app:tint="@color/white" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView style="@style/TsuyuSettingLabel" android:text="Звук уведомлений" />
+                            <TextView android:id="@+id/drawerSoundValue" style="@style/PrivacyValue" android:text="Стандартный" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/drawerSwitchSound"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="@color/white"
+                            android:trackTint="@color/card_border" />
+                    </LinearLayout>
+
+                    <!-- Вибрация -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowVibrate"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_music" app:tint="@color/white" />
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Вибрация" />
+                        <Switch
+                            android:id="@+id/drawerSwitchVibrate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="@color/white"
+                            android:trackTint="@color/card_border" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/drawerRowKeys"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_key" />
-                    <TextView style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="E2E ключи" />
+                <!-- Section: Настройки приложения -->
+                <TextView style="@style/SectionTitle" android:text="Настройки Tsuyu" />
+
+                <LinearLayout style="@style/Card">
+                    <!-- Профиль -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowProfile"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_user" app:tint="@color/white" />
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Редактировать профиль" />
+                    </LinearLayout>
+
+                    <!-- Кастомизация -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowCustomization"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_palette" app:tint="@color/white" />
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Оформление и темы" />
+                    </LinearLayout>
+
+                    <!-- Конфиденциальность -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowPrivacy"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_shield" app:tint="@color/white" />
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Конфиденциальность" />
+                    </LinearLayout>
+
+                    <!-- E2E Ключи -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowKeys"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_key" app:tint="@color/white" />
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="E2E ключи шифрования" />
+                    </LinearLayout>
+
+                    <!-- Очистить кэш -->
+                    <LinearLayout
+                        android:id="@+id/drawerRowCache"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon" android:src="@drawable/ic_delete" app:tint="@color/white" />
+                        <TextView
+                            android:id="@+id/drawerCacheText"
+                            style="@style/TsuyuSettingLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Очистить кэш (0.0 MB)" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/drawerRowProfile"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_user" />
-                    <TextView style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Редактировать профиль" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/drawerRowCustomization"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_palette" />
-                    <TextView style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Кастомизация" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/drawerRowPrivacy"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_shield" />
-                    <TextView style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Конфиденциальность" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/drawerRowCache"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon" android:src="@drawable/ic_delete" />
-                    <TextView
-                        android:id="@+id/drawerCacheText"
-                        style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Очистить кэш (0.0 MB)" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginVertical="8dp"
-                    android:background="#222224" />
-
-                <LinearLayout
-                    android:id="@+id/drawerRowLogout"
-                    style="@style/SettingRow">
-                    <ImageView style="@style/RowIcon"
-                        android:src="@drawable/ic_logout"
-                        app:tint="#FF3B30" />
-                    <TextView style="@style/TsuyuSettingLabel"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Выйти из аккаунта"
-                        android:textColor="#FF3B30" />
+                <!-- Section: Выход -->
+                <LinearLayout style="@style/Card" android:layout_marginTop="8dp">
+                    <LinearLayout
+                        android:id="@+id/drawerRowLogout"
+                        style="@style/SettingRow">
+                        <ImageView style="@style/RowIcon"
+                            android:src="@drawable/ic_logout"
+                            app:tint="#FF3B30" />
+                        <TextView style="@style/TsuyuSettingLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Выйти из аккаунта"
+                            android:textColor="#FF3B30" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

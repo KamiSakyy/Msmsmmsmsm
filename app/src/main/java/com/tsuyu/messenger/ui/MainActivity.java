@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private RecyclerView list;
     private EditText searchInput;
-    private ImageView btnClearSearch, btnGhost, btnProfile, btnDrawerMenu;
+    private ImageView btnClearSearch, btnGhost, btnDrawerMenu;
     private LinearLayout emptyState;
 
     private TextView tabAll, tabDirect, tabUnread;
@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Drawer Views
     private ImageView drawerAvatar, drawerAvatarEdit;
-    private TextView drawerName, drawerUsername, drawerOnlineStatus, drawerBio, drawerCacheText;
-    private Switch drawerSwitchStealth, drawerSwitchSound;
+    private TextView drawerName, drawerUsername, drawerOnlineStatus, drawerBio, drawerCacheText, drawerSoundValue;
+    private Switch drawerSwitchGhost, drawerSwitchStealth, drawerSwitchSecure, drawerSwitchSound, drawerSwitchVibrate;
 
     private DialogAdapter dialogAdapter;
     private SearchAdapter searchAdapter;
@@ -83,10 +83,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefs = new Prefs(this);
+        if (prefs.secureScreen()) {
+            getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE,
+                    android.view.WindowManager.LayoutParams.FLAG_SECURE);
+        }
         setContentView(R.layout.activity_main);
 
         repo = Repo.get(this);
-        prefs = new Prefs(this);
         me = repo.uid();
         if (me == null) {
             startActivity(new Intent(this, AuthActivity.class));
@@ -100,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         searchInput = findViewById(R.id.searchInput);
         btnClearSearch = findViewById(R.id.btnClearSearch);
         btnGhost = findViewById(R.id.btnGhost);
-        btnProfile = findViewById(R.id.btnProfile);
         emptyState = findViewById(R.id.emptyState);
 
         tabAll = findViewById(R.id.tabAll);
@@ -116,23 +119,22 @@ public class MainActivity extends AppCompatActivity {
         searchAdapter = new SearchAdapter(this, new ArrayList<>(), this::openChatWithUser);
         list.setAdapter(dialogAdapter);
 
-        findViewById(R.id.btnSettings).setOnClickListener(v ->
-                startActivity(new Intent(this, SettingsActivity.class)));
-        btnProfile.setOnClickListener(v ->
-                startActivity(new Intent(this, ProfileActivity.class)));
-
         if (btnDrawerMenu != null) {
             btnDrawerMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
         }
 
         updateGhostIcon();
-        btnGhost.setOnClickListener(v -> {
-            prefs.setGhost(!prefs.ghost());
-            updateGhostIcon();
-            if (drawerSwitchStealth != null) drawerSwitchStealth.setChecked(prefs.ghost());
-            Ui.tapScale(btnGhost);
-            repo.goOnline();
-        });
+        if (btnGhost != null) {
+            btnGhost.setOnClickListener(v -> {
+                boolean next = !prefs.ghost();
+                prefs.setGhost(next);
+                updateGhostIcon();
+                Ui.tapScale(btnGhost);
+                repo.goOnline();
+                Toast.makeText(this, next ? "👻 Режим призрака включен (невидимка)"
+                        : "Режим призрака выключен", Toast.LENGTH_SHORT).show();
+            });
+        }
 
         btnClearSearch.setOnClickListener(v -> searchInput.setText(""));
         setupSearch();
@@ -172,15 +174,45 @@ public class MainActivity extends AppCompatActivity {
         drawerOnlineStatus = findViewById(R.id.drawerOnlineStatus);
         drawerBio = findViewById(R.id.drawerBio);
         drawerCacheText = findViewById(R.id.drawerCacheText);
-        drawerSwitchStealth = findViewById(R.id.drawerSwitchStealth);
-        drawerSwitchSound = findViewById(R.id.drawerSwitchSound);
+        drawerSoundValue = findViewById(R.id.drawerSoundValue);
 
-        if (drawerSwitchStealth != null) {
-            drawerSwitchStealth.setChecked(prefs.ghost());
-            drawerSwitchStealth.setOnCheckedChangeListener((b, checked) -> {
+        drawerSwitchGhost = findViewById(R.id.drawerSwitchGhost);
+        drawerSwitchStealth = findViewById(R.id.drawerSwitchStealth);
+        drawerSwitchSecure = findViewById(R.id.drawerSwitchSecure);
+        drawerSwitchSound = findViewById(R.id.drawerSwitchSound);
+        drawerSwitchVibrate = findViewById(R.id.drawerSwitchVibrate);
+
+        if (drawerSwitchGhost != null) {
+            drawerSwitchGhost.setChecked(prefs.ghost());
+            drawerSwitchGhost.setOnCheckedChangeListener((b, checked) -> {
                 prefs.setGhost(checked);
                 updateGhostIcon();
                 repo.goOnline();
+                Toast.makeText(this, checked ? "👻 Режим призрака включен (невидимка)"
+                        : "Режим призрака выключен", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (drawerSwitchStealth != null) {
+            drawerSwitchStealth.setChecked(prefs.stealthRead());
+            drawerSwitchStealth.setOnCheckedChangeListener((b, checked) -> {
+                prefs.setStealthRead(checked);
+                Toast.makeText(this, checked ? "Режим «Не читать» включен" : "Режим «Не читать» выключен", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (drawerSwitchSecure != null) {
+            drawerSwitchSecure.setChecked(prefs.secureScreen());
+            drawerSwitchSecure.setOnCheckedChangeListener((b, checked) -> {
+                prefs.setSecureScreen(checked);
+                if (checked) {
+                    getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE,
+                            android.view.WindowManager.LayoutParams.FLAG_SECURE);
+                    Toast.makeText(this, "Защита экрана включена", Toast.LENGTH_SHORT).show();
+                } else {
+                    getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
+                    Toast.makeText(this, "Защита экрана выключена", Toast.LENGTH_SHORT).show();
+                }
             });
         }
 
@@ -192,11 +224,34 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        findViewById(R.id.drawerRowStealth).setOnClickListener(v -> {
+        if (drawerSwitchVibrate != null) {
+            drawerSwitchVibrate.setChecked(prefs.vibrate());
+            drawerSwitchVibrate.setOnCheckedChangeListener((b, checked) -> prefs.setVibrate(checked));
+        }
+
+        View rowGhost = findViewById(R.id.drawerRowGhost);
+        if (rowGhost != null) rowGhost.setOnClickListener(v -> {
+            if (drawerSwitchGhost != null) drawerSwitchGhost.toggle();
+        });
+
+        View rowStealth = findViewById(R.id.drawerRowStealthRead);
+        if (rowStealth != null) rowStealth.setOnClickListener(v -> {
             if (drawerSwitchStealth != null) drawerSwitchStealth.toggle();
         });
-        findViewById(R.id.drawerRowSound).setOnClickListener(v -> {
+
+        View rowSecure = findViewById(R.id.drawerRowSecureScreen);
+        if (rowSecure != null) rowSecure.setOnClickListener(v -> {
+            if (drawerSwitchSecure != null) drawerSwitchSecure.toggle();
+        });
+
+        View rowSound = findViewById(R.id.drawerRowSound);
+        if (rowSound != null) rowSound.setOnClickListener(v -> {
             if (drawerSwitchSound != null) drawerSwitchSound.toggle();
+        });
+
+        View rowVibrate = findViewById(R.id.drawerRowVibrate);
+        if (rowVibrate != null) rowVibrate.setOnClickListener(v -> {
+            if (drawerSwitchVibrate != null) drawerSwitchVibrate.toggle();
         });
 
         findViewById(R.id.drawerRowKeys).setOnClickListener(v -> {
@@ -219,21 +274,37 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, PrivacyActivity.class));
         });
 
+        View bioWrap = findViewById(R.id.drawerBioWrap);
+        if (bioWrap != null) {
+            bioWrap.setOnClickListener(v -> showQuickEditBioDialog());
+        }
+
         if (drawerAvatarEdit != null) {
             drawerAvatarEdit.setOnClickListener(v -> {
                 drawerLayout.closeDrawer(GravityCompat.START);
                 startActivity(new Intent(this, ProfileActivity.class));
             });
         }
-
-        if (drawerBio != null) {
-            drawerBio.setOnClickListener(v -> showQuickEditBioDialog());
+        if (drawerAvatar != null) {
+            drawerAvatar.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(new Intent(this, ProfileActivity.class));
+            });
         }
 
         findViewById(R.id.drawerRowCache).setOnClickListener(v -> clearCachePrompt());
         findViewById(R.id.drawerRowLogout).setOnClickListener(v -> logoutPrompt());
 
+        renderDrawerSound();
         calcDrawerCache();
+    }
+
+    private void renderDrawerSound() {
+        if (drawerSoundValue != null) {
+            String s = prefs.notificationSoundRaw();
+            if (s == null || "builtin".equals(s)) drawerSoundValue.setText("Стандартный Tsuyu");
+            else drawerSoundValue.setText("Свой звук");
+        }
     }
 
     private void calcDrawerCache() {
@@ -361,9 +432,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateGhostIcon() {
         boolean g = prefs.ghost();
-        btnGhost.setColorFilter(ContextCompat.getColor(this,
-                g ? R.color.accent : R.color.text_secondary));
-        btnGhost.setBackgroundResource(R.drawable.bg_circle_btn);
+        if (btnGhost != null) {
+            btnGhost.setColorFilter(ContextCompat.getColor(this,
+                    g ? R.color.accent : R.color.text_secondary));
+            btnGhost.setAlpha(g ? 1.0f : 0.6f);
+        }
+        if (drawerOnlineStatus != null) {
+            if (g) {
+                drawerOnlineStatus.setText("👻 невидимка (призрак)");
+                drawerOnlineStatus.setTextColor(0xFFAF52DE);
+            } else {
+                drawerOnlineStatus.setText("● в сети");
+                drawerOnlineStatus.setTextColor(0xFF34C759);
+            }
+        }
+        if (drawerSwitchGhost != null && drawerSwitchGhost.isChecked() != g) {
+            drawerSwitchGhost.setChecked(g);
+        }
     }
 
     private void loadMyProfile() {
@@ -371,13 +456,17 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onDataChange(@NonNull DataSnapshot s) {
                 if (!s.exists()) return;
                 Models.User u = Repo.parseUser(s);
-                Ui.setAvatar(btnProfile, u.avatar, u.uid, u.name);
                 if (drawerAvatar != null) Ui.setAvatar(drawerAvatar, u.avatar, u.uid, u.name);
                 if (drawerName != null) drawerName.setText(u.name);
                 if (drawerUsername != null) drawerUsername.setText("@" + (u.username != null ? u.username : "user"));
-                if (drawerBio != null && u.bio != null && !u.bio.isEmpty()) {
-                    drawerBio.setText(u.bio);
+                if (drawerBio != null) {
+                    if (u.bio != null && !u.bio.trim().isEmpty()) {
+                        drawerBio.setText(u.bio);
+                    } else {
+                        drawerBio.setText("Нажмите, чтобы изменить описание...");
+                    }
                 }
+                updateGhostIcon();
             }
             @Override public void onCancelled(@NonNull DatabaseError e) { }
         });

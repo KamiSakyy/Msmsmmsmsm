@@ -200,6 +200,7 @@ public class Repo {
     public void setTyping(String peer, boolean typing) {
         String uid = uid();
         if (uid == null) return;
+        if (prefs.ghost() && typing) return; // Ghost mode suppresses typing indicator
         DatabaseReference ref = db.getReference("typing").child(peer).child(uid);
         if (typing) {
             ref.setValue(ServerValue.TIMESTAMP);
@@ -402,7 +403,7 @@ public class Repo {
     }
 
     public void markRead(String peerUid, String msgId) {
-        if (prefs.ghost()) return; // ghost mode leaves no read receipts
+        if (prefs.ghost() || prefs.stealthRead()) return; // ghost & stealth mode leave no read receipts
         String me = uid();
         if (me == null) return;
         chatRef(me, peerUid).child(msgId).child("read").setValue(true);

@@ -66,9 +66,15 @@ public class Prefs {
     public String wordMessage() { return p.getString("w_message", "Сообщение"); }
     public void setWordMessage(String v) { p.edit().putString("w_message", v).apply(); }
 
-    // ---- ghost mode ----
+    // ---- ghost mode & stealth read ----
     public boolean ghost() { return p.getBoolean("ghost", false); }
     public void setGhost(boolean v) { p.edit().putBoolean("ghost", v).apply(); }
+
+    public boolean stealthRead() { return p.getBoolean("stealth_read", false); }
+    public void setStealthRead(boolean v) { p.edit().putBoolean("stealth_read", v).apply(); }
+
+    public boolean e2eeEnabled() { return p.getBoolean("e2ee_enabled", true); }
+    public void setE2eeEnabled(boolean v) { p.edit().putBoolean("e2ee_enabled", v).apply(); }
 
     // ---- screen security / screenshot protection ----
     public boolean secureScreen() { return p.getBoolean("secure_screen", false); }
