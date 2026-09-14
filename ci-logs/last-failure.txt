@@ -1,0 +1,7 @@
+/home/runner/work/Msmsmmsmsm/Msmsmmsmsm/app/src/main/java/com/tsuyu/messenger/ui/MainActivity.java:425: error: cannot find symbol
+> Task :app:compileReleaseJavaWithJavac FAILED
+FAILURE: Build failed with an exception.
+Execution failed for task ':app:compileReleaseJavaWithJavac'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:compileReleaseJavaWithJavac'.
+Caused by: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed; see the compiler error output for details.
+BUILD FAILED in 20s
