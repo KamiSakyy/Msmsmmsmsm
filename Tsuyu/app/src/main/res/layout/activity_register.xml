@@ -83,7 +83,7 @@
                 <EditText android:id="@+id/etEmail" style="@style/TsuyuInput"
                     android:hint="@string/email" android:inputType="textEmailAddress" android:maxLines="1"/>
                 <EditText android:id="@+id/etPass" style="@style/TsuyuInput"
-                    android:hint="@string/password (мин. 6 символов)" android:inputType="textPassword" android:maxLines="1"/>
+                    android:hint="@string/password" android:inputType="textPassword" android:maxLines="1"/>
 
                 <TextView
                     android:id="@+id/tvError"
