@@ -56,22 +56,19 @@ jobs:
           set -o pipefail
           ./gradlew :app:assembleRelease --stacktrace 2>&1 | tee -a /tmp/build.log
 
-      - name: Report failure via API
+      - name: Push failure log to branch
         if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo "Run ${{ github.run_number }} failed on \`${{ github.sha }}\`."
-            echo
-            echo '```'
-            grep -E "error:|FAILURE|FAILED|Caused by|Could not|Execution failed|expected:|AssertionError|^[[:space:]]+at com\.tsuyu" /tmp/build.log \
-              | head -c 40000 || tail -c 20000 /tmp/build.log
-            echo '```'
-          } > /tmp/report.md
-          gh issue create --title "CI failure (run ${{ github.run_number }})" \
-            --body-file /tmp/report.md || \
-          gh api repos/${{ github.repository }}/issues -f title="CI failure ${{ github.run_number }}" -F body=@/tmp/report.md
+          mkdir -p ci-logs
+          grep -E "error:|FAILURE|FAILED|Caused by|Could not|Execution failed|expected:|AssertionError|^[[:space:]]+at com\.tsuyu|^[[:space:]]+[A-Za-z0-9_.]+Exception" /tmp/build.log \
+            | head -c 60000 > ci-logs/last-failure.txt || tail -c 30000 /tmp/build.log > ci-logs/last-failure.txt
+          tail -c 30000 /tmp/build.log > ci-logs/tail.txt
+          git config user.name "CI"
+          git config user.email "ci@tsuyu"
+          git add -f ci-logs
+          git commit -m "ci: failure log for run ${{ github.run_number }} [skip ci]" || exit 0
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push origin HEAD:${{ github.ref_name }}
 
       - name: Rename APK
         run: |
